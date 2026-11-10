@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dělení živočichů</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Stejna stavba jako trenazery u Viky; prirodoveda ma lesni zelenou misto hnede. */
+:root{
+  --ground:#F4F6F1;--surface:#FFFFFF;--sunk:#E9EEE5;--line:#D3DBCD;
+  --text:#1A1E18;--muted:#5E6858;--ink:#2F6B3A;--on-ink:#FFFFFF;--ink-soft:#E2EFE1;
+  --ok:#17703F;--ok-soft:#E1F2E7;--err:#B32B36;--err-soft:#FBE6E7;
+  --shadow:0 1px 2px rgba(26,30,24,.06),0 6px 18px rgba(26,30,24,.05);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#121511;--surface:#1B201A;--sunk:#252B23;--line:#353D32;
+    --text:#E6ECE2;--muted:#9DA897;--ink:#8FD19A;--on-ink:#121511;--ink-soft:#22362A;
+    --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121511;--surface:#1B201A;--sunk:#252B23;--line:#353D32;
+  --text:#E6ECE2;--muted:#9DA897;--ink:#8FD19A;--on-ink:#121511;--ink-soft:#22362A;
+  --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding-block:30px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+.eyebrow{margin:0;font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+h1{margin:6px 0 0;font-family:var(--serif);font-size:clamp(28px,7vw,40px);font-weight:600;line-height:1.1;text-wrap:balance}
+.lede{margin:10px 0 0;color:var(--muted)}
+.modes{display:flex;gap:4px;margin-top:18px;padding:4px;background:var(--sunk);border-radius:11px;border:1px solid var(--line)}
+.modes a{text-align:center;text-decoration:none;flex:1;color:var(--muted);font:600 14px var(--sans);padding:9px 4px;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.modes a[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.modes a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h2.part{margin:8px 0 0;font-family:var(--serif);font-size:22px;font-weight:600}
+.hint{margin:4px 0 0;font-size:15px;color:var(--muted)}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+ol.qs>li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 44px;position:relative;box-shadow:var(--shadow)}
+ol.qs>li::before{content:attr(data-n);position:absolute;left:16px;top:15px;font-size:13px;font-weight:700;color:var(--muted)}
+ol.qs>li.ok{border-color:var(--ok)}
+ol.qs>li.bad{border-color:var(--err)}
+.qt{margin:0 0 8px;font-weight:600}
+.qt.inline{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0}
+select{font:16px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+select:focus{outline:2px solid var(--ink);outline-offset:1px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.opt input{margin:4px 0 0;accent-color:var(--ink)}
+.opt:has(input:checked){background:var(--ink-soft);border-color:var(--ink)}
+.good{color:var(--ok)!important;border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.wrong{color:var(--err)!important;border-color:var(--err)!important;background:var(--err-soft)!important}
+.why{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--err-soft);color:var(--text);font-size:15px}
+.why b{color:var(--err)}
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:12px 18px;font:700 16px var(--sans);cursor:pointer;background:var(--ink);color:var(--on-ink)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.result h2{margin:0 0 4px;font-size:18px}
+.result p{margin:0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin:0 0 6px;font-family:var(--serif);font-size:19px}
+.card p,.card ul{margin:6px 0}
+.card ul{padding-left:20px}
+section{display:flex;flex-direction:column;gap:14px}
+input.txt{font:17px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+input.txt.short{width:9em;max-width:100%}
+input.txt:focus{outline:2px solid var(--ink);outline-offset:1px}
+.grow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:5px 0}
+.grow .gl{flex:1 1 10em}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+footer{font-size:13px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+@media print{.bar,.modes,#mobil{display:none!important} body{background:#fff} ol.qs>li{box-shadow:none;break-inside:avoid}}
+.pozor{background:var(--ink-soft);border:2px dashed var(--ink);border-radius:12px;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.pozor h3{margin:0;font-family:var(--serif);font-size:18px;color:var(--ink)}
+.pozor p{margin:0}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="mobil" style="background:var(--ink);color:var(--on-ink);border-radius:12px;padding:14px 16px;font-weight:600">
+  <a href="https://liborkorynta-lang.github.io/skola/miky/prirodoveda/PRV_deleni-zivocichu_01_TRENAZER.html" style="color:var(--on-ink);text-decoration:underline">Pro otevření na iPhonu klikni sem</a>
+</div>
+<header>
+  <p class="eyebrow">Přírodověda · trenažér</p>
+  <h1>Dělení živočichů</h1>
+  <p class="lede">Všechno je ze sešitu. Začni Základem, pak zkus Těžší. Když něco nevíš, mrkni do taháku. Zkoušet můžeš, kolikrát chceš.</p>
+  <div class="modes" role="tablist">
+    <a href="#zak" id="t-zak" role="tab" aria-selected="true">Základ</a>
+    <a href="#tez" id="t-tez" role="tab" aria-selected="false">Těžší</a>
+    <a href="#tah" id="t-tah" role="tab" aria-selected="false">Tahák</a>
+  </div>
+</header>
+<section id="zak" class="part-sec">
+  <h2 class="part">Základ</h2>
+  <p class="hint">Vyber správnou odpověď nebo přiřaď.</p>
+  <ol class="qs"><li class="q" data-q="k1" data-n="1"><p class="qt">Bezobratlí živočichové nemají…</p><div class="opts"><label class="opt"><input type="radio" name="k1" value="0" data-k="k1"><span>peří ani křídla</span></label><label class="opt"><input type="radio" name="k1" value="1" data-k="k1"><span>kosti, obratle ani páteř</span></label><label class="opt"><input type="radio" name="k1" value="2" data-k="k1"><span>ploutve ani šupiny</span></label></div><div class="why" hidden></div></li><li class="q" data-q="k2" data-n="2"><p class="qt">Která skupina bezobratlých je nejpočetnější?</p><div class="opts"><label class="opt"><input type="radio" name="k2" value="0" data-k="k2"><span>hmyz</span></label><label class="opt"><input type="radio" name="k2" value="1" data-k="k2"><span>ryby</span></label><label class="opt"><input type="radio" name="k2" value="2" data-k="k2"><span>savci</span></label></div><div class="why" hidden></div></li><li class="q" data-q="k6" data-n="3"><p class="qt">Které tři skupiny bezobratlých máš v sešitu?</p><div class="opts"><label class="opt"><input type="radio" name="k6" value="0" data-k="k6"><span>ryby, plazi, ptáci</span></label><label class="opt"><input type="radio" name="k6" value="1" data-k="k6"><span>motýli, blanokřídlí, brouci</span></label><label class="opt"><input type="radio" name="k6" value="2" data-k="k6"><span>savci, ptáci, hmyz</span></label></div><div class="why" hidden></div></li><li class="q" data-q="k3" data-n="4"><p class="qt">Co je základem kostry obratlovců?</p><div class="opts"><label class="opt"><input type="radio" name="k3" value="0" data-k="k3"><span>krunýř</span></label><label class="opt"><input type="radio" name="k3" value="1" data-k="k3"><span>srst</span></label><label class="opt"><input type="radio" name="k3" value="2" data-k="k3"><span>páteř složená z obratlů</span></label></div><div class="why" hidden></div></li><li class="q" data-q="k4" data-n="5"><p class="qt">Z čeho je složené tělo obratlovců?</p><div class="opts"><label class="opt"><input type="radio" name="k4" value="0" data-k="k4"><span>z klobouku a třeně</span></label><label class="opt"><input type="radio" name="k4" value="1" data-k="k4"><span>z hlavy, trupu a končetin</span></label><label class="opt"><input type="radio" name="k4" value="2" data-k="k4"><span>z kořene, stonku a listů</span></label></div><div class="why" hidden></div></li><li class="q" data-q="k5" data-n="6"><p class="qt">Kdo z nich patří mezi savce?</p><div class="opts"><label class="opt"><input type="radio" name="k5" value="0" data-k="k5"><span>želva</span></label><label class="opt"><input type="radio" name="k5" value="1" data-k="k5"><span>vlaštovka</span></label><label class="opt"><input type="radio" name="k5" value="2" data-k="k5"><span>člověk</span></label></div><div class="why" hidden></div></li><li class="q" data-q="z1" data-n="7"><p class="qt">Ke každému zvířeti vyber, kam patří</p><div class="grow"><label class="gl" for="z1a">jezevec</label><select id="z1a" data-k="z1a"><option value="">vyber…</option><option value="ryby">ryby</option><option value="obojživelníci">obojživelníci</option><option value="plazi">plazi</option><option value="ptáci">ptáci</option><option value="savci">savci</option><option value="bezobratlí">bezobratlí</option></select></div><div class="grow"><label class="gl" for="z1b">kapr obecný</label><select id="z1b" data-k="z1b"><option value="">vyber…</option><option value="ryby">ryby</option><option value="obojživelníci">obojživelníci</option><option value="plazi">plazi</option><option value="ptáci">ptáci</option><option value="savci">savci</option><option value="bezobratlí">bezobratlí</option></select></div><div class="grow"><label class="gl" for="z1c">slunéčko sedmitečné</label><select id="z1c" data-k="z1c"><option value="">vyber…</option><option value="ryby">ryby</option><option value="obojživelníci">obojživelníci</option><option value="plazi">plazi</option><option value="ptáci">ptáci</option><option value="savci">savci</option><option value="bezobratlí">bezobratlí</option></select></div><div class="grow"><label class="gl" for="z1d">želva</label><select id="z1d" data-k="z1d"><option value="">vyber…</option><option value="ryby">ryby</option><option value="obojživelníci">obojživelníci</option><option value="plazi">plazi</option><option value="ptáci">ptáci</option><option value="savci">savci</option><option value="bezobratlí">bezobratlí</option></select></div><div class="grow"><label class="gl" for="z1e">skokan</label><select id="z1e" data-k="z1e"><option value="">vyber…</option><option value="ryby">ryby</option><option value="obojživelníci">obojživelníci</option><option value="plazi">plazi</option><option value="ptáci">ptáci</option><option value="savci">savci</option><option value="bezobratlí">bezobratlí</option></select></div><div class="grow"><label class="gl" for="z1f">vlaštovka</label><select id="z1f" data-k="z1f"><option value="">vyber…</option><option value="ryby">ryby</option><option value="obojživelníci">obojživelníci</option><option value="plazi">plazi</option><option value="ptáci">ptáci</option><option value="savci">savci</option><option value="bezobratlí">bezobratlí</option></select></div><div class="why" hidden></div></li><li class="q" data-q="z2" data-n="8"><p class="qt">Čím kdo dýchá?</p><div class="grow"><label class="gl" for="z2a">ryba</label><select id="z2a" data-k="z2a"><option value="">vyber…</option><option value="žábrami">žábrami</option><option value="plícemi">plícemi</option></select></div><div class="grow"><label class="gl" for="z2b">dospělá ropucha</label><select id="z2b" data-k="z2b"><option value="">vyber…</option><option value="žábrami">žábrami</option><option value="plícemi">plícemi</option></select></div><div class="grow"><label class="gl" for="z2c">pulec</label><select id="z2c" data-k="z2c"><option value="">vyber…</option><option value="žábrami">žábrami</option><option value="plícemi">plícemi</option></select></div><div class="grow"><label class="gl" for="z2d">had</label><select id="z2d" data-k="z2d"><option value="">vyber…</option><option value="žábrami">žábrami</option><option value="plícemi">plícemi</option></select></div><div class="grow"><label class="gl" for="z2e">sojka</label><select id="z2e" data-k="z2e"><option value="">vyber…</option><option value="žábrami">žábrami</option><option value="plícemi">plícemi</option></select></div><div class="why" hidden></div></li><li class="q" data-q="z3" data-n="9"><p class="qt">Čím je pokryté jejich tělo?</p><div class="grow"><label class="gl" for="z3a">savci</label><select id="z3a" data-k="z3a"><option value="">vyber…</option><option value="peřím">peřím</option><option value="srstí">srstí</option><option value="šupinami nebo krunýřem">šupinami nebo krunýřem</option><option value="kůží bez šupin">kůží bez šupin</option></select></div><div class="grow"><label class="gl" for="z3b">obojživelníci</label><select id="z3b" data-k="z3b"><option value="">vyber…</option><option value="peřím">peřím</option><option value="srstí">srstí</option><option value="šupinami nebo krunýřem">šupinami nebo krunýřem</option><option value="kůží bez šupin">kůží bez šupin</option></select></div><div class="grow"><label class="gl" for="z3c">ptáci</label><select id="z3c" data-k="z3c"><option value="">vyber…</option><option value="peřím">peřím</option><option value="srstí">srstí</option><option value="šupinami nebo krunýřem">šupinami nebo krunýřem</option><option value="kůží bez šupin">kůží bez šupin</option></select></div><div class="grow"><label class="gl" for="z3d">plazi</label><select id="z3d" data-k="z3d"><option value="">vyber…</option><option value="peřím">peřím</option><option value="srstí">srstí</option><option value="šupinami nebo krunýřem">šupinami nebo krunýřem</option><option value="kůží bez šupin">kůží bez šupin</option></select></div><div class="why" hidden></div></li></ol>
+  <div class="bar"><button class="btn chk" type="button">Zkontrolovat</button><button class="btn ghost rst" type="button">Vymazat</button></div><div class="result" hidden></div>
+</section>
+<section id="tez" class="part-sec">
+  <h2 class="part">Těžší</h2>
+  <p class="hint">Teď nic nevybíráš, píšeš zpaměti. Stačí jedno nebo dvě slova. Na háčcích a čárkách nezáleží.</p>
+  <ol class="qs"><li class="q set" data-q="t1" data-n="1"><p class="qt">Z čeho je složené tělo obratlovců? Napiš tři části.</p><div class="fields"><div class="grow"><input class="txt short" id="t1_0" data-k="t1_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Z čeho je složené tělo obratlovců? Napiš tři části. 1"></div><div class="grow"><input class="txt short" id="t1_1" data-k="t1_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Z čeho je složené tělo obratlovců? Napiš tři části. 2"></div><div class="grow"><input class="txt short" id="t1_2" data-k="t1_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Z čeho je složené tělo obratlovců? Napiš tři části. 3"></div></div><div class="why" hidden></div></li><li class="q set" data-q="t2" data-n="2"><p class="qt">Napiš všech pět skupin obratlovců.</p><div class="fields"><div class="grow"><input class="txt short" id="t2_0" data-k="t2_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš všech pět skupin obratlovců. 1"></div><div class="grow"><input class="txt short" id="t2_1" data-k="t2_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš všech pět skupin obratlovců. 2"></div><div class="grow"><input class="txt short" id="t2_2" data-k="t2_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš všech pět skupin obratlovců. 3"></div><div class="grow"><input class="txt short" id="t2_3" data-k="t2_3" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš všech pět skupin obratlovců. 4"></div><div class="grow"><input class="txt short" id="t2_4" data-k="t2_4" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš všech pět skupin obratlovců. 5"></div></div><div class="why" hidden></div></li><li class="q set" data-q="t3" data-n="3"><p class="qt">Napiš tři skupiny bezobratlých ze sešitu.</p><div class="fields"><div class="grow"><input class="txt short" id="t3_0" data-k="t3_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš tři skupiny bezobratlých ze sešitu. 1"></div><div class="grow"><input class="txt short" id="t3_1" data-k="t3_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš tři skupiny bezobratlých ze sešitu. 2"></div><div class="grow"><input class="txt short" id="t3_2" data-k="t3_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Napiš tři skupiny bezobratlých ze sešitu. 3"></div></div><div class="why" hidden></div></li><li class="q" data-q="t4" data-n="4"><p class="qt">Ryby</p><div class="fields"><div class="grow"><label class="gl" for="t4_0">žijí</label><input class="txt short" id="t4_0" data-k="t4_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ryby 1"></div><div class="grow"><label class="gl" for="t4_1">dýchají</label><input class="txt short" id="t4_1" data-k="t4_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ryby 2"></div><div class="grow"><label class="gl" for="t4_2">místo končetin mají</label><input class="txt short" id="t4_2" data-k="t4_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ryby 3"></div><div class="grow"><label class="gl" for="t4_3">pohybují se</label><input class="txt short" id="t4_3" data-k="t4_3" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ryby 4"></div></div><div class="why" hidden></div></li><li class="q" data-q="t5" data-n="5"><p class="qt">Obojživelníci</p><div class="fields"><div class="grow"><label class="gl" for="t5_0">část života žijí na</label><input class="txt short" id="t5_0" data-k="t5_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Obojživelníci 1"></div><div class="grow"><label class="gl" for="t5_1">a část</label><input class="txt short" id="t5_1" data-k="t5_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Obojživelníci 2"></div><div class="grow"><label class="gl" for="t5_2">z vajíček se vylíhnou</label><input class="txt short" id="t5_2" data-k="t5_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Obojživelníci 3"></div><div class="grow"><label class="gl" for="t5_3">ti dýchají</label><input class="txt short" id="t5_3" data-k="t5_3" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Obojživelníci 4"></div><div class="grow"><label class="gl" for="t5_4">dospělí dýchají</label><input class="txt short" id="t5_4" data-k="t5_4" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Obojživelníci 5"></div></div><div class="why" hidden></div></li><li class="q set" data-q="t6" data-n="6"><p class="qt">Plazi mají tělo pokryté… (napiš obě možnosti)</p><div class="fields"><div class="grow"><input class="txt short" id="t6_0" data-k="t6_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Plazi mají tělo pokryté… (napiš obě možnosti) 1"></div><div class="grow"><label class="gl" for="t6_1">nebo</label><input class="txt short" id="t6_1" data-k="t6_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Plazi mají tělo pokryté… (napiš obě možnosti) 2"></div></div><div class="why" hidden></div></li><li class="q" data-q="t7" data-n="7"><p class="qt">Ptáci</p><div class="fields"><div class="grow"><label class="gl" for="t7_0">tělo mají pokryté</label><input class="txt short" id="t7_0" data-k="t7_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ptáci 1"></div><div class="grow"><label class="gl" for="t7_1">mají</label><input class="txt short" id="t7_1" data-k="t7_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ptáci 2"></div><div class="grow"><label class="gl" for="t7_2">pohybují se</label><input class="txt short" id="t7_2" data-k="t7_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ptáci 3"></div></div><div class="why" hidden></div></li><li class="q" data-q="t8" data-n="8"><p class="qt">Savci</p><div class="fields"><div class="grow"><label class="gl" for="t8_0">na povrchu těla mají</label><input class="txt short" id="t8_0" data-k="t8_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Savci 1"></div><div class="grow"><label class="gl" for="t8_1">rodí se jim živá</label><input class="txt short" id="t8_1" data-k="t8_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Savci 2"></div><div class="grow"><label class="gl" for="t8_2">po narození pijí</label><input class="txt short" id="t8_2" data-k="t8_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Savci 3"></div></div><div class="why" hidden></div></li><li class="q" data-q="t9" data-n="9"><p class="qt">Ke každému napiš, do které skupiny patří.</p><div class="fields"><div class="grow"><label class="gl" for="t9_0">mlok</label><input class="txt short" id="t9_0" data-k="t9_0" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ke každému napiš, do které skupiny patří. 1"></div><div class="grow"><label class="gl" for="t9_1">cejn</label><input class="txt short" id="t9_1" data-k="t9_1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ke každému napiš, do které skupiny patří. 2"></div><div class="grow"><label class="gl" for="t9_2">kůň</label><input class="txt short" id="t9_2" data-k="t9_2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ke každému napiš, do které skupiny patří. 3"></div><div class="grow"><label class="gl" for="t9_3">babočka admirál</label><input class="txt short" id="t9_3" data-k="t9_3" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ke každému napiš, do které skupiny patří. 4"></div><div class="grow"><label class="gl" for="t9_4">strnad</label><input class="txt short" id="t9_4" data-k="t9_4" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ke každému napiš, do které skupiny patří. 5"></div><div class="grow"><label class="gl" for="t9_5">had</label><input class="txt short" id="t9_5" data-k="t9_5" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ke každému napiš, do které skupiny patří. 6"></div></div><div class="why" hidden></div></li></ol>
+  <div class="bar"><button class="btn chk" type="button">Zkontrolovat</button><button class="btn ghost rst" type="button">Vymazat</button></div><div class="result" hidden></div>
+</section>
+<section id="tah">
+  <h2 class="part">Tahák</h2>
+  <div class="card"><h3>Bezobratlí</h3>
+    <p>Nemají <b>kosti, obratle ani páteř</b>. Nejpočetnější skupina je <b>hmyz</b>. V sešitu máš tři skupiny:</p>
+    <ul><li><b>motýli</b> – babočka admirál</li><li><b>blanokřídlí</b> – včela medonosná</li><li><b>brouci</b> – slunéčko sedmitečné</li></ul></div>
+  <div class="card"><h3>Obratlovci</h3>
+    <p>Mají <b>kostru z kostí</b>. Základ kostry je <b>páteř</b> složená z <b>obratlů</b>. Tělo má <b>hlavu, trup a končetiny</b>, někdy i ocas.</p>
+    <div class="tw"><table>
+      <tr><th>skupina</th><th>kde žijí</th><th>dýchají</th><th>tělo</th><th>příklad</th></tr>
+      <tr><td><b>ryby</b></td><td>ve vodě, pohybují se plaváním</td><td>žábrami</td><td>místo končetin ploutve</td><td>kapr obecný, cejn</td></tr>
+      <tr><td><b>obojživelníci</b></td><td>část života na souši, část ve vodě</td><td>pulci žábrami, dospělí plícemi</td><td>kůže bez šupin</td><td>skokan, ropucha, mlok</td></tr>
+      <tr><td><b>plazi</b></td><td>na souši</td><td>plícemi</td><td>šupiny nebo krunýř</td><td>had, želva</td></tr>
+      <tr><td><b>ptáci</b></td><td>ve vzduchu, pohybují se letem</td><td>plícemi</td><td>peří, křídla</td><td>vlaštovka, trodont, sojka, strnad</td></tr>
+      <tr><td><b>savci</b></td><td>na souši, ve vodě, ve vzduchu</td><td></td><td>srst</td><td>jezevec, kůň, člověk</td></tr>
+    </table></div>
+    <p>Savcům se rodí <b>živá mláďata</b> a ta po narození pijí <b>mateřské mléko</b>.</p></div>
+  <div class="pozor"><h3>Pozor</h3>
+    <p>V sešitě máš, že bezobratlí mají <b>tři skupiny: motýli, blanokřídlí, brouci</b>. Ve skutečnosti jsou to skupiny
+    <b>hmyzu</b>. Bezobratlých je mnohem víc, třeba pavouci nebo šneci. Zeptej se paní učitelky.</p>
+    <p>V sešitě máš mezi ptáky <b>trodont</b>. Takového ptáka neznáme, nejspíš to má být <b>drozd</b>. Zeptej se paní učitelky.</p>
+  </div>
+</section>
+
+<footer>Přírodověda 4 · podle sešitu z 2. 11. 2026</footer>
+</div>
+<script>
+(function(){
+"use strict";
+try{ document.getElementById("mobil").hidden = true; }catch(e){}
+/* Odpovedi a vysvetleni jsou zamlzene (XOR + base64), aby neslo nakouknout do zdroje.
+   Neni to zabezpeceni - klic lezi ve stejnem souboru. */
+var KEY = "miky-prv1-2026";
+var P = "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";
+var D = null;
+try{
+  var raw = atob(P), s = "", i;
+  for(i = 0; i < raw.length; i++){ s += String.fromCharCode(raw.charCodeAt(i) ^ KEY.charCodeAt(i % KEY.length)); }
+  D = JSON.parse(decodeURIComponent(escape(s)));
+}catch(e){ D = null; }
+
+var $ = function(id){ return document.getElementById(id); };
+var each = function(list, fn){ Array.prototype.forEach.call(list, fn); };
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+var SKEY = "prv-deleni-zivocichu-01";
+function saveAll(){
+  var st = {};
+  each(document.querySelectorAll("[data-k]"), function(el){
+    if(el.type === "radio"){ if(el.checked) st[el.name] = el.value; }
+    else st[el.id] = el.value;
+  });
+  try{ localStorage.setItem(SKEY, JSON.stringify(st)); }catch(e){}
+}
+(function restore(){
+  var st = null;
+  try{ var r = localStorage.getItem(SKEY); st = r ? JSON.parse(r) : null; }catch(e){ st = null; }
+  if(!st) return;
+  each(document.querySelectorAll("[data-k]"), function(el){
+    if(el.type === "radio"){ if(st[el.name] === el.value) el.checked = true; }
+    else if(st[el.id] != null) el.value = st[el.id];
+  });
+})();
+
+/* zalozky - bez JS jsou vsechny casti pod sebou a odkazy jen skacou; s JS se prepinaji */
+var TABS = [["t-zak","zak"],["t-tez","tez"],["t-tah","tah"]];
+function showTab(id){
+  TABS.forEach(function(q){
+    var on = q[1] === id;
+    $(q[0]).setAttribute("aria-selected", on ? "true" : "false");
+    $(q[1]).hidden = !on;
+  });
+}
+TABS.forEach(function(p){
+  $(p[0]).addEventListener("click", function(ev){
+    ev.preventDefault();
+    showTab(p[1]);
+    window.scrollTo(0, 0);
+  });
+});
+showTab("zak");
+
+function clearMarks(li){
+  li.classList.remove("ok","bad");
+  each(li.querySelectorAll(".good,.wrong"), function(x){ x.classList.remove("good","wrong"); });
+  var w = li.querySelector(".why"); w.hidden = true; w.innerHTML = "";
+}
+/* bez hacku a carek - tohle neni diktat */
+var DIA = {"á":"a","č":"c","ď":"d","é":"e","ě":"e","í":"i","ň":"n","ó":"o","ř":"r","š":"s","ť":"t","ú":"u","ů":"u","ý":"y","ž":"z"};
+function norm(v){
+  var t = String(v || "").toLowerCase().replace(/[\s.,!]/g, ""), out = "", i, c;
+  for(i = 0; i < t.length; i++){ c = t.charAt(i); out += DIA[c] || c; }
+  return out;
+}
+function matches(v, right){
+  var list = (Object.prototype.toString.call(right) === "[object Array]") ? right : [right];
+  for(var i = 0; i < list.length; i++){ if(norm(v) === norm(list[i])) return true; }
+  return false;
+}
+
+function checkLi(li){
+  clearMarks(li);
+  var qid = li.getAttribute("data-q");
+  var ok = true, answered = false;
+  var radios = li.querySelectorAll("input[type=radio]");
+  if(radios.length){
+    var right = D.a[qid];
+    each(radios, function(r){
+      var lab = r.parentNode;
+      if(r.checked){ answered = true; if(r.value === right) lab.classList.add("good"); else { lab.classList.add("wrong"); ok = false; } }
+    });
+    if(!answered) ok = false;
+  } else if(D.s[qid]){
+    /* poradi nezalezi: kazde policko musi sedet na jinou spravnou odpoved */
+    var used = [];
+    each(li.querySelectorAll("[data-k]"), function(el){
+      var v = norm(el.value), hit = -1, j;
+      if(v) answered = true;
+      for(j = 0; j < D.s[qid].length; j++){
+        if(used.indexOf(j) < 0 && v && matches(el.value, D.s[qid][j])){ hit = j; break; }
+      }
+      if(hit >= 0){ used.push(hit); el.classList.add("good"); } else { el.classList.add("wrong"); ok = false; }
+    });
+  } else {
+    each(li.querySelectorAll("[data-k]"), function(el){
+      var v = norm(el.value);
+      if(v) answered = true;
+      if(v && matches(el.value, D.a[el.id])) el.classList.add("good"); else { el.classList.add("wrong"); ok = false; }
+    });
+  }
+  li.classList.add(ok ? "ok" : "bad");
+  if(!ok){
+    var w = li.querySelector(".why");
+    w.innerHTML = (answered ? "" : "<b>Nevyplněno.</b> ") + esc(D.w[qid] || "");
+    w.hidden = false;
+  }
+  return ok;
+}
+
+each(document.querySelectorAll(".part-sec"), function(sec){
+  var box = sec.querySelector(".result");
+  function touched(e){
+    saveAll();
+    var li = e.target.closest ? e.target.closest("li.q") : null;
+    if(li) clearMarks(li);
+  }
+  sec.addEventListener("input", touched);
+  sec.addEventListener("change", touched);
+  sec.querySelector(".chk").addEventListener("click", function(){
+    box.hidden = false;
+    if(!D){ box.innerHTML = "<h2>Soubor se nenačetl celý</h2><p>Zavři stránku a otevři ji znovu. Kdyby to nepomohlo, řekni to tátovi.</p>"; return; }
+    var all = true;
+    each(sec.querySelectorAll("li.q"), function(li){ if(!checkLi(li)) all = false; });
+    box.innerHTML = all
+      ? "<h2>Všechno sedí</h2><p>Tuhle část umíš. Zkus další záložku.</p>"
+      : "<h2>Něco ještě nesedí</h2><p>U červených otázek je vysvětlení. Přečti si ho a zkus to znovu.</p>";
+  });
+  sec.querySelector(".rst").addEventListener("click", function(){
+    each(sec.querySelectorAll("li.q"), clearMarks);
+    each(sec.querySelectorAll("[data-k]"), function(el){ if(el.type === "radio") el.checked = false; else el.value = ""; });
+    box.hidden = true;
+    saveAll();
+    window.scrollTo(0, 0);
+  });
+});
+})();
+
+</script>
+</body>
+</html>

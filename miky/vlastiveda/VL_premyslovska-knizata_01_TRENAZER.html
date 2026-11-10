@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Přemyslovská knížata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+
+/* Stejna stavba jako trenazery PRV; vlastiveda ma cihlove hnedou. */
+:root{
+  --ground:#F7F3EE;--surface:#FFFFFF;--sunk:#EFE8DF;--line:#DDD2C4;
+  --text:#221C16;--muted:#6B5E50;--ink:#8A4B22;--on-ink:#FFFFFF;--ink-soft:#F3E3D6;
+  --ok:#17703F;--ok-soft:#E1F2E7;--err:#B32B36;--err-soft:#FBE6E7;
+  --shadow:0 1px 2px rgba(34,28,22,.06),0 6px 18px rgba(34,28,22,.05);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#16120F;--surface:#1F1A16;--sunk:#2A231E;--line:#3D342C;
+    --text:#EDE4DA;--muted:#A89A8A;--ink:#E0A272;--on-ink:#16120F;--ink-soft:#3A2A1E;
+    --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#16120F;--surface:#1F1A16;--sunk:#2A231E;--line:#3D342C;
+  --text:#EDE4DA;--muted:#A89A8A;--ink:#E0A272;--on-ink:#16120F;--ink-soft:#3A2A1E;
+  --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding-block:30px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+.eyebrow{margin:0;font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+h1{margin:6px 0 0;font-family:var(--serif);font-size:clamp(28px,7vw,40px);font-weight:600;line-height:1.1;text-wrap:balance}
+.lede{margin:10px 0 0;color:var(--muted)}
+.modes{display:flex;gap:4px;margin-top:18px;padding:4px;background:var(--sunk);border-radius:11px;border:1px solid var(--line)}
+.modes a{text-align:center;text-decoration:none;flex:1;color:var(--muted);font:600 14px var(--sans);padding:9px 4px;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.modes a[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.modes a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h2.part{margin:8px 0 0;font-family:var(--serif);font-size:22px;font-weight:600}
+.hint{margin:4px 0 0;font-size:15px;color:var(--muted)}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+ol.qs>li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 44px;position:relative;box-shadow:var(--shadow);min-width:0}
+ol.qs>li::before{content:attr(data-n);position:absolute;left:16px;top:15px;font-size:13px;font-weight:700;color:var(--muted)}
+ol.qs>li.ok{border-color:var(--ok)}
+ol.qs>li.bad{border-color:var(--err)}
+.qt{margin:0 0 8px;font-weight:600}
+.cloze{margin:0;line-height:2.3}
+select{font:16px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+select:focus{outline:2px solid var(--ink);outline-offset:1px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.opt input{margin:4px 0 0;accent-color:var(--ink)}
+.opt:has(input:checked){background:var(--ink-soft);border-color:var(--ink)}
+.good{color:var(--ok)!important;border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.wrong{color:var(--err)!important;border-color:var(--err)!important;background:var(--err-soft)!important}
+.why{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--err-soft);color:var(--text);font-size:15px}
+.why b{color:var(--err)}
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:12px 18px;font:700 16px var(--sans);cursor:pointer;background:var(--ink);color:var(--on-ink)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.result h2{margin:0 0 4px;font-size:18px}
+.result p{margin:0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin:0 0 6px;font-family:var(--serif);font-size:19px}
+.card p,.card ul{margin:6px 0}
+.card ul{padding-left:20px}
+section{display:flex;flex-direction:column;gap:14px}
+input.txt{font:17px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:5px 10px;max-width:100%}
+input.txt.short{width:8.5em}
+input.txt:focus{outline:2px solid var(--ink);outline-offset:1px}
+.grow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:5px 0;border-top:1px solid var(--line)}
+.grow:first-of-type{border-top:0}
+.grow .gl{flex:1 1 12em}
+footer{font-size:13px;color:var(--muted);text-align:center}
+.pozor{margin:10px 0 0;padding:10px 12px;border-radius:9px;border:1px solid var(--err);background:var(--err-soft);font-size:15px}
+.pozor b{color:var(--err)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+@media print{.bar,.modes,#mobil{display:none!important} body{background:#fff} ol.qs>li{box-shadow:none;break-inside:avoid}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="mobil" style="background:var(--ink);color:var(--on-ink);border-radius:12px;padding:14px 16px;font-weight:600">
+  <a href="https://liborkorynta-lang.github.io/skola/miky/vlastiveda/VL_premyslovska-knizata_01_TRENAZER.html" style="color:var(--on-ink);text-decoration:underline">Pro otevření na iPhonu klikni sem</a>
+</div>
+<header>
+  <p class="eyebrow">Vlastivěda · trenažér</p>
+  <h1>Přemyslovská knížata</h1>
+  <p class="lede">Všechno je ze sešitu. Začni Základem, pak zkus Těžší. Když něco nevíš, mrkni do taháku. Zkoušet můžeš, kolikrát chceš.</p>
+  <div class="modes" role="tablist">
+    <a href="#zak" id="t-zak" role="tab" aria-selected="true">Základ</a>
+    <a href="#tez" id="t-tez" role="tab" aria-selected="false">Těžší</a>
+    <a href="#tah" id="t-tah" role="tab" aria-selected="false">Tahák</a>
+  </div>
+</header>
+<section id="zak" class="part-sec">
+  <h2 class="part">Základ</h2>
+  <p class="hint">Vyber správnou odpověď.</p>
+  <ol class="qs"><li class="q" data-q="z1" data-n="1"><p class="qt">Který kmen se usadil u řeky Vltavy?</p><div class="opts"><label class="opt"><input type="radio" name="z1" value="0" data-k="z1"><span>Slavníkovci</span></label><label class="opt"><input type="radio" name="z1" value="1" data-k="z1"><span>Čechové</span></label><label class="opt"><input type="radio" name="z1" value="2" data-k="z1"><span>Moravané</span></label></div><div class="why" hidden></div></li><li class="q" data-q="z2" data-n="2"><p class="qt">Kdo to byl? Ke každé větě vyber knížete.</p><div class="grow"><label class="gl" for="z2a">Měl manželku Ludmilu.</label><select id="z2a" data-k="z2a"><option value="">vyber…</option><option value="Bořivoj">Bořivoj</option><option value="Václav">Václav</option><option value="Boleslav">Boleslav</option></select></div><div class="grow"><label class="gl" for="z2b">Přestěhoval své sídlo do Prahy.</label><select id="z2b" data-k="z2b"><option value="">vyber…</option><option value="Bořivoj">Bořivoj</option><option value="Václav">Václav</option><option value="Boleslav">Boleslav</option></select></div><div class="grow"><label class="gl" for="z2c">Vychovávala ho babička Ludmila.</label><select id="z2c" data-k="z2c"><option value="">vyber…</option><option value="Bořivoj">Bořivoj</option><option value="Václav">Václav</option><option value="Boleslav">Boleslav</option></select></div><div class="grow"><label class="gl" for="z2d">Platil poplatek za mír, aby byla země v bezpečí.</label><select id="z2d" data-k="z2d"><option value="">vyber…</option><option value="Bořivoj">Bořivoj</option><option value="Václav">Václav</option><option value="Boleslav">Boleslav</option></select></div><div class="grow"><label class="gl" for="z2e">Rozvíjel obchod s cizími zeměmi.</label><select id="z2e" data-k="z2e"><option value="">vyber…</option><option value="Bořivoj">Bořivoj</option><option value="Václav">Václav</option><option value="Boleslav">Boleslav</option></select></div><div class="grow"><label class="gl" for="z2f">Za jeho vlády se začaly razit stříbrné mince denáry.</label><select id="z2f" data-k="z2f"><option value="">vyber…</option><option value="Bořivoj">Bořivoj</option><option value="Václav">Václav</option><option value="Boleslav">Boleslav</option></select></div><div class="why" hidden></div></li><li class="q" data-q="z3" data-n="3"><p class="qt">Kdy se to stalo?</p><div class="grow"><label class="gl" for="z3a">vznikl český stát</label><select id="z3a" data-k="z3a"><option value="">vyber…</option><option value="koncem 10. století">koncem 10. století</option><option value="935">935</option><option value="995">995</option></select></div><div class="grow"><label class="gl" for="z3b">Boleslav zavraždil Václava</label><select id="z3b" data-k="z3b"><option value="">vyber…</option><option value="koncem 10. století">koncem 10. století</option><option value="935">935</option><option value="995">995</option></select></div><div class="grow"><label class="gl" for="z3c">byl vyvražděn rod Slavníkovců</label><select id="z3c" data-k="z3c"><option value="">vyber…</option><option value="koncem 10. století">koncem 10. století</option><option value="935">935</option><option value="995">995</option></select></div><div class="why" hidden></div></li><li class="q" data-q="z4" data-n="4"><p class="qt">Čím se lidé za knížat živili?</p><div class="opts"><label class="opt"><input type="radio" name="z4" value="0" data-k="z4"><span>lovem mamutů</span></label><label class="opt"><input type="radio" name="z4" value="1" data-k="z4"><span>zemědělstvím a rybolovem</span></label><label class="opt"><input type="radio" name="z4" value="2" data-k="z4"><span>prací v továrnách</span></label></div><div class="why" hidden></div></li><li class="q" data-q="z5" data-n="5"><p class="qt">Jaké platidlo se začalo používat?</p><div class="opts"><label class="opt"><input type="radio" name="z5" value="0" data-k="z5"><span>plátěné šátečky</span></label><label class="opt"><input type="radio" name="z5" value="1" data-k="z5"><span>papírové bankovky</span></label><label class="opt"><input type="radio" name="z5" value="2" data-k="z5"><span>mušle</span></label></div><div class="why" hidden></div></li><li class="q" data-q="z6" data-n="6"><p class="qt">Prostý, nebo bohatý lid?</p><div class="grow"><label class="gl" for="z6a">žil v hradištích</label><select id="z6a" data-k="z6a"><option value="">vyber…</option><option value="prostý lid">prostý lid</option><option value="bohatý lid">bohatý lid</option></select></div><div class="grow"><label class="gl" for="z6b">žil ve vesnicích kolem hradišť</label><select id="z6b" data-k="z6b"><option value="">vyber…</option><option value="prostý lid">prostý lid</option><option value="bohatý lid">bohatý lid</option></select></div><div class="grow"><label class="gl" for="z6c">nosil tmavší jednobarevné oblečení</label><select id="z6c" data-k="z6c"><option value="">vyber…</option><option value="prostý lid">prostý lid</option><option value="bohatý lid">bohatý lid</option></select></div><div class="grow"><label class="gl" for="z6d">nosil oblečení z drahocenných látek</label><select id="z6d" data-k="z6d"><option value="">vyber…</option><option value="prostý lid">prostý lid</option><option value="bohatý lid">bohatý lid</option></select></div><div class="why" hidden></div></li><li class="q" data-q="z7" data-n="7"><p class="qt">Kdo napsal první kroniku o historii našich zemí?</p><div class="opts"><label class="opt"><input type="radio" name="z7" value="0" data-k="z7"><span>biskup Vojtěch</span></label><label class="opt"><input type="radio" name="z7" value="1" data-k="z7"><span>Kosmas</span></label><label class="opt"><input type="radio" name="z7" value="2" data-k="z7"><span>kníže Václav</span></label></div><div class="why" hidden></div></li><li class="q" data-q="z8" data-n="8"><p class="qt">Románská stavba. Platí to, nebo ne?</p><div class="grow"><label class="gl" for="z8a">má silné kamenné zdi bez omítky</label><select id="z8a" data-k="z8a"><option value="">vyber…</option><option value="platí">platí</option><option value="neplatí">neplatí</option></select></div><div class="grow"><label class="gl" for="z8b">má velká okna, je v ní hodně světla</label><select id="z8b" data-k="z8b"><option value="">vyber…</option><option value="platí">platí</option><option value="neplatí">neplatí</option></select></div><div class="grow"><label class="gl" for="z8c">okna a vchody mají tvar půlkruhového oblouku</label><select id="z8c" data-k="z8c"><option value="">vyber…</option><option value="platí">platí</option><option value="neplatí">neplatí</option></select></div><div class="grow"><label class="gl" for="z8d">klenby drží silné sloupy</label><select id="z8d" data-k="z8d"><option value="">vyber…</option><option value="platí">platí</option><option value="neplatí">neplatí</option></select></div><div class="grow"><label class="gl" for="z8e">vnitřní stěny bývají zdobené malbami</label><select id="z8e" data-k="z8e"><option value="">vyber…</option><option value="platí">platí</option><option value="neplatí">neplatí</option></select></div><div class="why" hidden></div></li></ol>
+  <div class="bar"><button class="btn chk" type="button">Zkontrolovat</button><button class="btn ghost rst" type="button">Vymazat</button></div><div class="result" hidden></div>
+</section>
+<section id="tez" class="part-sec">
+  <h2 class="part">Těžší</h2>
+  <p class="hint">Napiš chybějící slovo zpaměti. Na háčcích, čárkách a velkých písmenech tady nezáleží.</p>
+  <ol class="qs"><li class="q" data-q="t1" data-n="9"><p class="cloze">Mocným rodem byli <input class="txt short" id="t1a" data-k="t1a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Nejprve vládla <input class="txt short" id="t1b" data-k="t1b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">, později <input class="txt short" id="t1c" data-k="t1c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">.</p><div class="why" hidden></div></li><li class="q" data-q="t2" data-n="10"><p class="cloze">Bořivoj a Ludmila se nechali na Moravě <input class="txt short" id="t2a" data-k="t2a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Bořivoj šířil <input class="txt short" id="t2b" data-k="t2b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">.</p><div class="why" hidden></div></li><li class="q" data-q="t3" data-n="11"><p class="cloze">Václav byl vnuk <input class="txt short" id="t3a" data-k="t3a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo"> a <input class="txt short" id="t3b" data-k="t3b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Zpočátku za něj vládla matka <input class="txt short" id="t3c" data-k="t3c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">.</p><div class="why" hidden></div></li><li class="q" data-q="t4" data-n="12"><p class="cloze">V roce <input class="txt short" id="t4a" data-k="t4a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo"> Václava zavraždil jeho bratr <input class="txt short" id="t4b" data-k="t4b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo"> ve <input class="txt short" id="t4c" data-k="t4c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">.</p><div class="why" hidden></div></li><li class="q" data-q="t5" data-n="13"><p class="cloze">Boleslav se stal knížetem po zavraždění <input class="txt short" id="t5a" data-k="t5a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Vládl déle než <input class="txt short" id="t5b" data-k="t5b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo"> let.</p><div class="why" hidden></div></li><li class="q" data-q="t6" data-n="14"><p class="cloze">Přemyslovci ovládli všechny české kmeny kromě <input class="txt short" id="t6a" data-k="t6a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Z rodu přežil jen biskup <input class="txt short" id="t6b" data-k="t6b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">, protože byl v <input class="txt short" id="t6c" data-k="t6c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">.</p><div class="why" hidden></div></li><li class="q" data-q="t7" data-n="15"><p class="cloze">Vzdělaní byli jen <input class="txt short" id="t7a" data-k="t7a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo"> a <input class="txt short" id="t7b" data-k="t7b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Knihy se opisovaly <input class="txt short" id="t7c" data-k="t7c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Kosmas napsal kroniku <input class="txt short" id="t7d" data-k="t7d" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">.</p><div class="why" hidden></div></li><li class="q" data-q="t8" data-n="16"><p class="cloze">Lidé se usazovali v nížinách kolem velkých <input class="txt short" id="t8a" data-k="t8a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Obchodovalo se na <input class="txt short" id="t8b" data-k="t8b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Stále fungoval <input class="txt short" id="t8c" data-k="t8c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo"> obchod.</p><div class="why" hidden></div></li><li class="q" data-q="t9" data-n="17"><p class="cloze">Románské stavby se stavěly hlavně pro <input class="txt short" id="t9a" data-k="t9a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">. Okna mají tvar <input class="txt short" id="t9b" data-k="t9b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo"> oblouku. Uvnitř je tma, protože tam je málo <input class="txt short" id="t9c" data-k="t9c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="doplň slovo">.</p><div class="why" hidden></div></li></ol>
+  <div class="bar"><button class="btn chk" type="button">Zkontrolovat</button><button class="btn ghost rst" type="button">Vymazat</button></div><div class="result" hidden></div>
+</section>
+<section id="tah">
+  <h2 class="part">Tahák</h2>
+  <div class="card"><h3>Přemyslovci</h3>
+    <p>U řeky Vltavy se usadil kmen <b>Čechové</b>. Mocným rodem byli <b>Přemyslovci</b>.
+    Koncem <b>10. století</b> vznikl <b>český stát</b>. Nejprve vládla <b>knížata</b>, později <b>králové</b>.</p></div>
+  <div class="card"><h3>Tři knížata</h3>
+    <ul>
+      <li><b>Bořivoj</b> – manželka <b>Ludmila</b>; na Moravě se nechali <b>pokřtít</b>; sídlo přestěhoval do <b>Prahy</b>; stavěl první křesťanské kostely; šířil <b>křesťanství</b>.</li>
+      <li><b>Václav</b> – vnuk Bořivoje a Ludmily; vychovávala ho <b>babička Ludmila</b>; zpočátku za něj vládla matka <b>Drahomíra</b>; za bezpečnost země platil <b>poplatek za mír</b>; byl vzdělaný, uměl číst a psát. V roce <b>935</b> ho zavraždil bratr <b>Boleslav</b> ve <b>Staré Boleslavi</b>. Byl prohlášen za <b>svatého</b>, je patron neboli ochránce.</li>
+      <li><b>Boleslav</b> – knížetem po zavraždění Václava; vládl <b>déle než 30 let</b>; rozvíjel <b>obchod s cizími zeměmi</b>; razily se stříbrné mince <b>denáry</b>.</li>
+    </ul>
+    <p class="pozor"><b>Pozor:</b> v sešitě máš „je předstírán patron“. Slovo <i>předstírat</i> znamená dělat, že něco je, i když to není. V knížkách o historii se o Václavovi píše, že <b>je považován za patrona</b> české země – lidé ho berou jako svého ochránce. Jestli chceš, zeptej se na to paní učitelky.</p></div>
+  <div class="card"><h3>Slavníkovci</h3>
+    <p>Přemyslovci ovládli všechny české kmeny kromě <b>Slavníkovců</b>. Roku <b>995</b> byl celý rod vyvražděn.
+    Přežil jen biskup <b>Vojtěch</b>, protože byl v <b>zahraničí</b>.</p></div>
+  <div class="card"><h3>Život za knížat</h3>
+    <ul>
+      <li>Usazovali se v <b>nížinách kolem velkých řek</b>, živili se <b>zemědělstvím a rybolovem</b>.</li>
+      <li>Obchodovalo se na <b>hradištích</b>. Fungoval <b>výměnný obchod</b>, platidlo byly <b>plátěné šátečky</b>.</li>
+      <li><b>Prostý lid</b>: vesnice kolem hradišť, tmavší jednobarevné oblečení. <b>Bohatý lid</b>: v hradištích, oblečení z drahocenných látek.</li>
+      <li>Vzdělaní byli jen <b>mniši a urození</b>. Knihy se opisovaly <b>ručně</b>. První kroniku napsal <b>Kosmas</b>, <b>latinsky</b>.</li>
+    </ul></div>
+  <div class="card"><h3>Románský sloh</h3>
+    <p>Stavby (kláštery, hrady, paláce, obytné domy) se stavěly hlavně pro <b>duchovní</b>. Některé stojí dodnes.</p>
+    <ul>
+      <li>silné <b>neomítnuté kamenné zdi</b></li>
+      <li>malá okna a vchody ve tvaru <b>půlkruhového oblouku</b></li>
+      <li>mohutné klenby podepřené <b>silnými sloupy</b></li>
+      <li>stěny často zdobené <b>malbami</b></li>
+      <li>uvnitř je <b>tma</b> – málo světla</li>
+    </ul></div>
+</section>
+<footer>Vlastivěda 4 · podle sešitu, sken 10. 11. 2026</footer>
+</div>
+<script>
+(function(){
+"use strict";
+try{ document.getElementById("mobil").hidden = true; }catch(e){}
+/* Odpovedi a vysvetleni jsou zamlzene (XOR + base64), aby neslo nakouknout do zdroje.
+   Neni to zabezpeceni - klic lezi ve stejnem souboru. */
+var KEY = "miky-vl1-2026";
+var P = "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";
+var D = null;
+try{
+  var raw = atob(P), s = "", i;
+  for(i = 0; i < raw.length; i++){ s += String.fromCharCode(raw.charCodeAt(i) ^ KEY.charCodeAt(i % KEY.length)); }
+  D = JSON.parse(decodeURIComponent(escape(s)));
+}catch(e){ D = null; }
+
+var $ = function(id){ return document.getElementById(id); };
+var each = function(list, fn){ Array.prototype.forEach.call(list, fn); };
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+var SKEY = "vl-premyslovska-knizata-01";
+function saveAll(){
+  var st = {};
+  each(document.querySelectorAll("[data-k]"), function(el){
+    if(el.type === "radio"){ if(el.checked) st[el.name] = el.value; }
+    else st[el.id] = el.value;
+  });
+  try{ localStorage.setItem(SKEY, JSON.stringify(st)); }catch(e){}
+}
+(function restore(){
+  var st = null;
+  try{ var r = localStorage.getItem(SKEY); st = r ? JSON.parse(r) : null; }catch(e){ st = null; }
+  if(!st) return;
+  each(document.querySelectorAll("[data-k]"), function(el){
+    if(el.type === "radio"){ if(st[el.name] === el.value) el.checked = true; }
+    else if(st[el.id] != null) el.value = st[el.id];
+  });
+})();
+
+/* zalozky - bez JS jsou vsechny casti pod sebou a odkazy jen skacou; s JS se prepinaji */
+var TABS = [["t-zak","zak"],["t-tez","tez"],["t-tah","tah"]];
+function showTab(id){
+  TABS.forEach(function(q){
+    var on = q[1] === id;
+    $(q[0]).setAttribute("aria-selected", on ? "true" : "false");
+    $(q[1]).hidden = !on;
+  });
+}
+TABS.forEach(function(p){
+  $(p[0]).addEventListener("click", function(ev){
+    ev.preventDefault();
+    showTab(p[1]);
+    window.scrollTo(0, 0);
+  });
+});
+showTab("zak");
+
+function clearMarks(li){
+  li.classList.remove("ok","bad");
+  each(li.querySelectorAll(".good,.wrong"), function(x){ x.classList.remove("good","wrong"); });
+  var w = li.querySelector(".why"); w.hidden = true; w.innerHTML = "";
+}
+/* bez hacku a carek - tohle neni diktat */
+var DIA = {"á":"a","č":"c","ď":"d","é":"e","ě":"e","í":"i","ň":"n","ó":"o","ř":"r","š":"s","ť":"t","ú":"u","ů":"u","ý":"y","ž":"z"};
+function norm(v){
+  var t = String(v || "").toLowerCase().replace(/[\s.,!]/g, ""), out = "", i, c;
+  for(i = 0; i < t.length; i++){ c = t.charAt(i); out += DIA[c] || c; }
+  return out;
+}
+function matches(v, right){
+  var list = (Object.prototype.toString.call(right) === "[object Array]") ? right : [right];
+  for(var i = 0; i < list.length; i++){ if(norm(v) === norm(list[i])) return true; }
+  return false;
+}
+
+function checkLi(li){
+  clearMarks(li);
+  var qid = li.getAttribute("data-q");
+  var ok = true, answered = false;
+  var radios = li.querySelectorAll("input[type=radio]");
+  if(radios.length){
+    var right = D.a[qid];
+    each(radios, function(r){
+      var lab = r.parentNode;
+      if(r.checked){ answered = true; if(r.value === right) lab.classList.add("good"); else { lab.classList.add("wrong"); ok = false; } }
+    });
+    if(!answered) ok = false;
+  } else {
+    each(li.querySelectorAll("[data-k]"), function(el){
+      var v = norm(el.value);
+      if(v) answered = true;
+      if(v && matches(el.value, D.a[el.id])) el.classList.add("good"); else { el.classList.add("wrong"); ok = false; }
+    });
+  }
+  li.classList.add(ok ? "ok" : "bad");
+  if(!ok){
+    var w = li.querySelector(".why");
+    w.innerHTML = (answered ? "" : "<b>Nevyplněno.</b> ") + esc(D.w[qid] || "");
+    w.hidden = false;
+  }
+  return ok;
+}
+
+each(document.querySelectorAll(".part-sec"), function(sec){
+  var box = sec.querySelector(".result");
+  function touched(e){
+    saveAll();
+    var li = e.target.closest ? e.target.closest("li.q") : null;
+    if(li) clearMarks(li);
+  }
+  sec.addEventListener("input", touched);
+  sec.addEventListener("change", touched);
+  sec.querySelector(".chk").addEventListener("click", function(){
+    box.hidden = false;
+    if(!D){ box.innerHTML = "<h2>Soubor se nenačetl celý</h2><p>Zavři stránku a otevři ji znovu. Kdyby to nepomohlo, řekni to tátovi.</p>"; return; }
+    var all = true;
+    each(sec.querySelectorAll("li.q"), function(li){ if(!checkLi(li)) all = false; });
+    box.innerHTML = all
+      ? "<h2>Všechno sedí</h2><p>Tuhle část umíš. Zkus další záložku.</p>"
+      : "<h2>Něco ještě nesedí</h2><p>U červených otázek je vysvětlení. Přečti si ho a zkus to znovu.</p>";
+  });
+  sec.querySelector(".rst").addEventListener("click", function(){
+    each(sec.querySelectorAll("li.q"), clearMarks);
+    each(sec.querySelectorAll("[data-k]"), function(el){ if(el.type === "radio") el.checked = false; else el.value = ""; });
+    box.hidden = true;
+    saveAll();
+    window.scrollTo(0, 0);
+  });
+});
+})();
+
+
+</script>
+</body>
+</html>
