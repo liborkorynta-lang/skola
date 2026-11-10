@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Měkké a tvrdé i/y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Source+Sans+3:wght@400;600;700&display=swap">
+
+<style>
+:root{
+  --ground:#F7F8FB;
+  --surface:#FFFFFF;
+  --sunk:#EEF1F7;
+  --line:#DCE1EC;
+  --text:#191C24;
+  --muted:#666E80;
+  --ink:#26418F;
+  --on-ink:#FFFFFF;
+  --ink-soft:#E4EAF9;
+  --ok:#17703F;
+  --ok-soft:#E1F2E7;
+  --err:#B32B36;
+  --err-soft:#FBE6E7;
+  --shadow:0 1px 2px rgba(25,28,36,.06),0 6px 18px rgba(25,28,36,.05);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#12141A;
+    --surface:#1B1E26;
+    --sunk:#23272F;
+    --line:#333844;
+    --text:#E8EAF0;
+    --muted:#9AA2B4;
+    --ink:#9DB6F5;
+    --on-ink:#12141A;
+    --ink-soft:#25304A;
+    --ok:#7DD3A0;
+    --ok-soft:#1D3327;
+    --err:#F09098;
+    --err-soft:#3A2126;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#12141A;
+  --surface:#1B1E26;
+  --sunk:#23272F;
+  --line:#333844;
+  --text:#E8EAF0;
+  --muted:#9AA2B4;
+  --ink:#9DB6F5;
+  --on-ink:#12141A;
+  --ink-soft:#25304A;
+  --ok:#7DD3A0;
+  --ok-soft:#1D3327;
+  --err:#F09098;
+  --err-soft:#3A2126;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{
+  max-width:720px;
+  margin:0 auto;
+  padding-inline:20px;
+  padding-block:34px 140px;
+  display:flex;
+  flex-direction:column;
+  gap:26px;
+}
+
+/* ---------- hlavička ---------- */
+.eyebrow{
+  margin:0;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+h1{
+  margin:6px 0 0;
+  font-family:var(--serif);
+  font-size:clamp(30px,7vw,42px);
+  font-weight:600;
+  letter-spacing:-.015em;
+  line-height:1.1;
+  text-wrap:balance;
+}
+.lede{
+  margin:10px 0 0;
+  max-width:56ch;
+  color:var(--muted);
+  font-size:16px;
+}
+
+/* ---------- přepínač režimů ---------- */
+.modes{
+  display:flex;
+  gap:4px;
+  margin-top:20px;
+  padding:4px;
+  background:var(--sunk);
+  border-radius:11px;
+  border:1px solid var(--line);
+}
+.modes button{
+  flex:1;
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-family:inherit;
+  font-size:14px;
+  font-weight:600;
+  padding:9px 6px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.modes button[aria-selected="true"]{
+  background:var(--surface);
+  color:var(--ink);
+  box-shadow:0 1px 2px rgba(0,0,0,.08);
+}
+.modes button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* ---------- věty ---------- */
+.hint{
+  margin:0;
+  font-size:14px;
+  color:var(--muted);
+}
+ol.sentences{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  counter-reset:s;
+}
+ol.sentences>li{
+  counter-increment:s;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:15px 16px 15px 46px;
+  position:relative;
+  box-shadow:var(--shadow);
+}
+ol.sentences>li::before{
+  content:counter(s);
+  position:absolute;
+  left:16px;
+  top:15px;
+  font-size:13px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  color:var(--muted);
+}
+.sentence{
+  font-family:var(--serif);
+  font-size:19px;
+  line-height:2.05;
+}
+
+/* ---------- políčka ---------- */
+input.gap{
+  width:1.5em;
+  font-family:var(--serif);
+  font-size:19px;
+  line-height:1.2;
+  text-align:center;
+  color:var(--ink);
+  background:transparent;
+  border:0;
+  border-bottom:2px solid var(--ink);
+  border-radius:2px 2px 0 0;
+  padding:0 0 1px;
+  margin:0 1px;
+  caret-color:var(--ink);
+}
+input.gap:focus{outline:0;background:var(--ink-soft)}
+input.gap.ok{color:var(--ok);border-bottom-color:var(--ok);background:var(--ok-soft)}
+input.gap.bad{color:var(--err);border-bottom-color:var(--err);background:var(--err-soft)}
+input.gap:disabled{opacity:1}
+
+.why{
+  margin:12px 0 0;
+  padding-top:11px;
+  border-top:1px dashed var(--line);
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.why p{
+  margin:0;
+  font-size:14.5px;
+  line-height:1.45;
+  color:var(--text);
+}
+.why b{color:var(--err);font-weight:700}
+.why .right{color:var(--ok);font-weight:700}
+
+/* ---------- tlačítka ---------- */
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+button.primary,button.ghost{
+  appearance:none;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:600;
+  padding:11px 20px;
+  border-radius:9px;
+  cursor:pointer;
+  transition:filter .15s;
+}
+button.primary{background:var(--ink);color:var(--on-ink);border:1px solid var(--ink)}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.primary:hover,button.ghost:hover{filter:brightness(1.08)}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* ---------- výsledek ---------- */
+.result{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-left:4px solid var(--ink);
+  border-radius:10px;
+  padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.result h2{
+  margin:0 0 4px;
+  font-family:var(--serif);
+  font-size:21px;
+  font-weight:600;
+}
+.result p{margin:0;color:var(--muted);font-size:15px}
+.result .big{
+  font-variant-numeric:tabular-nums;
+  color:var(--ink);
+  font-weight:700;
+}
+
+/* ---------- diktát ---------- */
+.dictrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.play{
+  appearance:none;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:var(--ink-soft);
+  color:var(--ink);
+  border:1px solid transparent;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:600;
+  padding:7px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.play:hover{border-color:var(--ink)}
+.play svg{width:13px;height:13px;fill:currentColor}
+textarea.write{
+  width:100%;
+  min-height:64px;
+  resize:vertical;
+  font-family:var(--serif);
+  font-size:18px;
+  line-height:1.55;
+  color:var(--text);
+  background:var(--sunk);
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:10px 12px;
+}
+textarea.write:focus{outline:2px solid var(--ink);outline-offset:-1px;background:var(--surface)}
+.diff{margin:12px 0 0;padding-top:11px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:8px}
+.diff .lbl{
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  display:block;
+  margin-bottom:2px;
+}
+.diff .line{font-family:var(--serif);font-size:17px;line-height:1.6}
+.diff mark{background:var(--err-soft);color:var(--err);font-weight:600;padding:0 2px;border-radius:3px}
+.diff .line.correct mark{background:var(--ok-soft);color:var(--ok)}
+.notice{
+  background:var(--sunk);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:13px 15px;
+  font-size:14.5px;
+  color:var(--muted);
+}
+
+/* ---------- pravidla ---------- */
+.rule{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:17px 18px;
+  box-shadow:var(--shadow);
+}
+.rule h3{
+  margin:0 0 8px;
+  font-family:var(--serif);
+  font-size:19px;
+  font-weight:600;
+}
+.rule p{margin:0 0 8px;font-size:15px;line-height:1.55}
+.rule p:last-child{margin-bottom:0}
+.rule .ex{color:var(--muted);font-size:14px}
+.letters{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 10px}
+.letters span{
+  font-family:var(--serif);
+  font-size:17px;
+  padding:3px 10px;
+  border-radius:7px;
+  background:var(--sunk);
+  border:1px solid var(--line);
+}
+.letters.hard span{color:var(--ink);border-color:var(--ink);background:var(--ink-soft)}
+.rules-list{display:flex;flex-direction:column;gap:14px}
+table.vs{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:4px}
+table.vs td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.vs td:first-child{font-family:var(--serif);color:var(--ink);font-weight:600;white-space:nowrap;width:1%}
+table.vs tr:last-child td{border-bottom:0}
+
+/* ---------- lišta s písmeny ---------- */
+.keybar{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.06);
+}
+.keybar button{
+  appearance:none;
+  min-width:60px;
+  font-family:var(--serif);
+  font-size:22px;
+  font-weight:600;
+  color:var(--ink);
+  background:var(--ink-soft);
+  border:1px solid transparent;
+  border-radius:9px;
+  padding:9px 0;
+  cursor:pointer;
+}
+.keybar button:hover{border-color:var(--ink)}
+.keybar .kb-hint{
+  align-self:center;
+  font-size:13px;
+  color:var(--muted);
+  margin-right:6px;
+}
+@media (max-width:520px){.keybar .kb-hint{display:none}.keybar button{flex:1}}
+
+footer{
+  margin-top:6px;
+  font-size:13px;
+  color:var(--muted);
+  text-align:center;
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<div id="mobil" style="background:var(--ink);color:var(--on-ink);border-radius:12px;padding:14px 16px;font-weight:600">
+  <a href="https://liborkorynta-lang.github.io/skola/viky/cesky_jazyk/CJ_diktat_01_TRENAZER.html" style="color:var(--on-ink);text-decoration:underline">Pro otevření na iPhonu klikni sem</a>
+</div>
+  <header>
+    <p class="eyebrow">Český jazyk · 6. třída</p>
+    <h1>Trenažér i/y</h1>
+    <p class="lede">Měkké a tvrdé i/y, vyjmenovaná slova a koncovky přídavných jmen. Dvanáct vět — nejdřív si je doplň, pak si je nech nadiktovat.</p>
+    <nav class="modes" role="tablist" aria-label="Režim">
+      <button id="tab-fill" role="tab" aria-selected="true" aria-controls="fill">Doplňovačka</button>
+      <button id="tab-dict" role="tab" aria-selected="false" aria-controls="dict">Diktát</button>
+      <button id="tab-rules" role="tab" aria-selected="false" aria-controls="rules">Pravidla</button>
+    </nav>
+  </header>
+
+  <section id="fill" role="tabpanel" aria-labelledby="tab-fill">
+    <p class="hint">Doplň <b>i</b>, <b>í</b>, <b>y</b>, nebo <b>ý</b>. Políčka pod textem ti pomůžou s délkou.</p>
+    <ol class="sentences" id="fill-list">
+<li><p class="sentence">Mal<input class="gap" type="text" id="g-0-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 1, písmeno 1"> chlapci si na dvoře v<input class="gap" type="text" id="g-0-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 1, písmeno 2">mysleli novou hru.</p><div class="why" hidden></div></li>
+<li><p class="sentence">Na jarn<input class="gap" type="text" id="g-1-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 2, písmeno 1"> louce bzučel<input class="gap" type="text" id="g-1-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 2, písmeno 2"> včely a pásl<input class="gap" type="text" id="g-1-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 2, písmeno 3"> se tam b<input class="gap" type="text" id="g-1-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 2, písmeno 4">ci.</p><div class="why" hidden></div></li>
+<li><p class="sentence">V r<input class="gap" type="text" id="g-2-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 3, písmeno 1">bníku plaval<input class="gap" type="text" id="g-2-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 3, písmeno 2"> velc<input class="gap" type="text" id="g-2-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 3, písmeno 3"> kapř<input class="gap" type="text" id="g-2-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 3, písmeno 4">.</p><div class="why" hidden></div></li>
+<li><p class="sentence">Sl<input class="gap" type="text" id="g-3-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 4, písmeno 1">šeli jsme, jak v lese klepou piln<input class="gap" type="text" id="g-3-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 4, písmeno 2"> datl<input class="gap" type="text" id="g-3-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 4, písmeno 3">.</p><div class="why" hidden></div></li>
+<li><p class="sentence">Ve ml<input class="gap" type="text" id="g-4-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 5, písmeno 1">ně bydl<input class="gap" type="text" id="g-4-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 5, písmeno 2"> star<input class="gap" type="text" id="g-4-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 5, písmeno 3"> ml<input class="gap" type="text" id="g-4-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 5, písmeno 4">nář se svým psem.</p><div class="why" hidden></div></li>
+<li><p class="sentence">S<input class="gap" type="text" id="g-5-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 6, písmeno 1">kory si zobal<input class="gap" type="text" id="g-5-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 6, písmeno 2"> s<input class="gap" type="text" id="g-5-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 6, písmeno 3">tá semínka ze s<input class="gap" type="text" id="g-5-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 6, písmeno 4">pky.</p><div class="why" hidden></div></li>
+<li><p class="sentence">Naši l<input class="gap" type="text" id="g-6-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 7, písmeno 1">žaři sjeli zledovatěl<input class="gap" type="text" id="g-6-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 7, písmeno 2"> svah bez ch<input class="gap" type="text" id="g-6-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 7, písmeno 3">by.</p><div class="why" hidden></div></li>
+<li><p class="sentence">Sousedov<input class="gap" type="text" id="g-7-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 8, písmeno 1"> psi b<input class="gap" type="text" id="g-7-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 8, písmeno 2">l<input class="gap" type="text" id="g-7-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 8, písmeno 3"> hladov<input class="gap" type="text" id="g-7-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 8, písmeno 4"> a hl<input class="gap" type="text" id="g-7-4" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 8, písmeno 5">dali ciz<input class="gap" type="text" id="g-7-5" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 8, písmeno 6"> zahradu.</p><div class="why" hidden></div></li>
+<li><p class="sentence">Babiččin<input class="gap" type="text" id="g-8-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 9, písmeno 1"> buchty b<input class="gap" type="text" id="g-8-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 9, písmeno 2">l<input class="gap" type="text" id="g-8-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 9, písmeno 3"> s<input class="gap" type="text" id="g-8-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 9, písmeno 4">pané mákem.</p><div class="why" hidden></div></li>
+<li><p class="sentence">V<input class="gap" type="text" id="g-9-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 10, písmeno 1">soké smrk<input class="gap" type="text" id="g-9-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 10, písmeno 2"> se oh<input class="gap" type="text" id="g-9-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 10, písmeno 3">bal<input class="gap" type="text" id="g-9-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 10, písmeno 4"> ve vichřici.</p><div class="why" hidden></div></li>
+<li><p class="sentence">R<input class="gap" type="text" id="g-10-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 11, písmeno 1">b<input class="gap" type="text" id="g-10-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 11, písmeno 2"> kosti jsme dal<input class="gap" type="text" id="g-10-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 11, písmeno 3"> do misk<input class="gap" type="text" id="g-10-3" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 11, písmeno 4"> pro kočku.</p><div class="why" hidden></div></li>
+<li><p class="sentence">V trávě se mihl<input class="gap" type="text" id="g-11-0" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 12, písmeno 1"> hbit<input class="gap" type="text" id="g-11-1" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 12, písmeno 2"> ještěř<input class="gap" type="text" id="g-11-2" maxlength="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Věta 12, písmeno 3">.</p><div class="why" hidden></div></li>
+    </ol>
+    <div class="actions" style="margin-top:20px">
+      <button class="primary" id="check-fill">Zkontrolovat</button>
+      <button class="ghost" id="reset-fill">Vymazat a začít znovu</button>
+    </div>
+    <div id="fill-result" hidden></div>
+  </section>
+
+  <section id="dict" role="tabpanel" aria-labelledby="tab-dict" hidden>
+    <div class="notice" id="voice-notice" hidden></div>
+    <p class="hint">Pusť si větu, napiš ji celou včetně tečky a čárek. Větu si můžeš pustit dvakrát — víckrát ne, jinak to není diktát.</p>
+    <ol class="sentences" id="dict-list">
+<li><div class="dictrow"><button type="button" class="play" data-i="0" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="0" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-0" rows="2" spellcheck="false" aria-label="Napiš větu 1"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="1" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="1" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-1" rows="2" spellcheck="false" aria-label="Napiš větu 2"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="2" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="2" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-2" rows="2" spellcheck="false" aria-label="Napiš větu 3"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="3" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="3" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-3" rows="2" spellcheck="false" aria-label="Napiš větu 4"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="4" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="4" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-4" rows="2" spellcheck="false" aria-label="Napiš větu 5"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="5" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="5" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-5" rows="2" spellcheck="false" aria-label="Napiš větu 6"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="6" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="6" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-6" rows="2" spellcheck="false" aria-label="Napiš větu 7"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="7" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="7" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-7" rows="2" spellcheck="false" aria-label="Napiš větu 8"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="8" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="8" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-8" rows="2" spellcheck="false" aria-label="Napiš větu 9"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="9" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="9" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-9" rows="2" spellcheck="false" aria-label="Napiš větu 10"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="10" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="10" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-10" rows="2" spellcheck="false" aria-label="Napiš větu 11"></textarea><div class="diff" hidden></div></li>
+<li><div class="dictrow"><button type="button" class="play" data-i="11" data-rate="1"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"></path></svg> Přehrát větu</button><button type="button" class="play" data-i="11" data-rate="0.72">Pomaleji</button></div><textarea class="write" id="d-11" rows="2" spellcheck="false" aria-label="Napiš větu 12"></textarea><div class="diff" hidden></div></li>
+    </ol>
+    <div class="actions" style="margin-top:20px">
+      <button class="primary" id="check-dict">Zkontrolovat</button>
+      <button class="ghost" id="reset-dict">Vymazat a začít znovu</button>
+    </div>
+    <div id="dict-result" hidden></div>
+  </section>
+
+  <section id="rules" role="tabpanel" aria-labelledby="tab-rules" hidden>
+    <div class="rules-list" id="rules-list">
+<div class="rule"><h3>1. Nejdřív se podívej, jaká souhláska je před tím</h3><p>Tvrdé souhlásky — po nich se píše <b>y</b>:</p><div class="letters hard"><span>h</span><span>ch</span><span>k</span><span>r</span><span>d</span><span>t</span><span>n</span></div><p>Měkké souhlásky — po nich se píše <b>i</b>:</p><div class="letters"><span>ž</span><span>š</span><span>č</span><span>ř</span><span>c</span><span>j</span><span>ď</span><span>ť</span><span>ň</span></div><p class="ex">chyba, ryba, tygr, kytka × čistý, židle, šiška. Tady nemusíš nic přemýšlet, jenom se podívat na písmeno vlevo.</p></div>
+<div class="rule"><h3>2. Zbývají obojetné — a jenom tam řešíš vyjmenovaná slova</h3><p>Obojetné souhlásky: <b>b, f, l, m, p, s, v, z</b>. Jenom po nich může být i&nbsp;/&nbsp;y podle toho, jestli je slovo mezi vyjmenovanými nebo je s nimi příbuzné.</p><p class="ex">Z těch, co jsou v tomhle diktátu:</p><table class="vs"><tr><td>být</td><td>byli, byly</td></tr><tr><td>bydlet</td><td>bydlí, příbytek</td></tr><tr><td>býk</td><td>býci</td></tr><tr><td>mlýn</td><td>ale mlynář má krátké y!</td></tr><tr><td>lyže</td><td>lyžaři</td></tr><tr><td>slyšet</td><td>slyšeli</td></tr><tr><td>myslet</td><td>vymysleli</td></tr><tr><td>sypat</td><td>sypané, sýpka</td></tr><tr><td>sytý</td><td>sytá</td></tr><tr><td>sýkora</td><td>sýkory</td></tr><tr><td>vysoký</td><td>vysoké</td></tr></table></div>
+<div class="rule"><h3>3. U koncovek se ptej na rod podstatného jména</h3><p>Přídavné jméno i sloveso v přísudku se řídí podle podstatného jména, ke kterému patří. Zeptej se: <b>jakého je rodu?</b></p><table class="vs"><tr><td>mužský životný</td><td>-i / -í → <i>psi byli hladoví, velcí kapři plavali</i></td></tr><tr><td>mužský neživotný</td><td>-y / -é → <i>smrky se ohýbaly, vysoké smrky</i></td></tr><tr><td>ženský</td><td>-y / -é → <i>buchty byly sypané</i></td></tr><tr><td>střední</td><td>-a / -á → <i>města byla velká</i></td></tr></table><p class="ex" style="margin-top:10px">Pozor na chyták: <i>Sousedovi psi</i> (psi = mužský životný), ale <i>Sousedovy boty</i> (boty = ženský).</p></div>
+<div class="rule"><h3>4. Měkká přídavná jména mají -í pořád</h3><p>Jarní, cizí, rybí, psí, kuřecí — u těch se na rod ptát nemusíš. Poznáš je tak, že mají <b>-í</b> ve všech rodech: <i>jarní den, jarní louka, jarní ráno</i>.</p></div>
+    </div>
+  </section>
+
+  <footer>Cvičení k diktátu č. 1 · 12 vět, 45 doplňovaných písmen</footer>
+</div>
+
+<div class="keybar" id="keybar">
+  <span class="kb-hint">Vlož písmeno:</span>
+  <button type="button" data-ch="i">i</button>
+  <button type="button" data-ch="í">í</button>
+  <button type="button" data-ch="y">y</button>
+  <button type="button" data-ch="ý">ý</button>
+</div>
+
+<script>
+(function(){
+"use strict";
+var SKEY = "viky-cj-diktat-01";
+try{ document.getElementById("mobil").hidden = true; }catch(e){}
+
+/* Odpovedi a vysvetleni jsou zamlzene (XOR + base64), aby neslo nakouknout do zdroje.
+   Neni to zabezpeceni - klic lezi ve stejnem souboru. */
+var KEY = "viky-cj-2026";
+var P = "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";
+var VETY = [];
+try{
+  var raw = atob(P), s = "", ri;
+  for(ri = 0; ri < raw.length; ri++){
+    s += String.fromCharCode(raw.charCodeAt(ri) ^ KEY.charCodeAt(ri % KEY.length));
+  }
+  VETY = JSON.parse(decodeURIComponent(escape(s)));
+}catch(e){ VETY = []; }
+
+/* ---------------- pomocne ---------------- */
+var $ = function(id){ return document.getElementById(id); };
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function plain(v){
+  var i=0;
+  return v.t.replace(/\[\]/g, function(){ return v.g[i++][0]; });
+}
+function store(k,val){ try{ localStorage.setItem(k, JSON.stringify(val)); }catch(e){} }
+function load(k){ try{ var r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function nactenoOk(){ return VETY.length > 0; }
+function hlaskaNenacteno(box){
+  box.hidden = false;
+  box.className = "result";
+  box.innerHTML = "<h2>Soubor se nenačetl celý</h2><p>Zavři stránku a otevři ji znovu. Kdyby to nepomohlo, řekni to tátovi.</p>";
+}
+
+/* ---------------- zalozky ---------------- */
+var TABS = [["tab-fill","fill"],["tab-dict","dict"],["tab-rules","rules"]];
+TABS.forEach(function(pair){
+  $(pair[0]).addEventListener("click", function(){
+    TABS.forEach(function(p){
+      var on = p[0]===pair[0];
+      $(p[0]).setAttribute("aria-selected", on ? "true" : "false");
+      $(p[1]).hidden = !on;
+    });
+    $("keybar").style.display = (pair[1]==="fill") ? "flex" : "none";
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+
+/* ---------------- doplnovacka ---------------- */
+var fillList = $("fill-list");
+var gaps = Array.prototype.slice.call(fillList.querySelectorAll("input.gap"));
+var ALLOWED = ["i","\u00ed","y","\u00fd"];
+
+gaps.forEach(function(inp, idx){
+  inp.addEventListener("input", function(){
+    var ch = inp.value.toLowerCase();
+    if(ch && ALLOWED.indexOf(ch) === -1){ inp.value = ""; return; }
+    inp.value = ch;
+    inp.classList.remove("ok","bad");
+    saveFill();
+    if(ch && gaps[idx+1]) gaps[idx+1].focus();
+  });
+  inp.addEventListener("keydown", function(e){
+    if(e.key === "Backspace" && !inp.value && gaps[idx-1]){
+      e.preventDefault(); gaps[idx-1].focus(); gaps[idx-1].value = ""; saveFill();
+    }
+    if(e.key === "ArrowRight" && gaps[idx+1]){ e.preventDefault(); gaps[idx+1].focus(); }
+    if(e.key === "ArrowLeft" && gaps[idx-1]){ e.preventDefault(); gaps[idx-1].focus(); }
+  });
+});
+
+var lastGap = null;
+document.addEventListener("focusin", function(e){
+  if(e.target && e.target.classList && e.target.classList.contains("gap")) lastGap = e.target;
+});
+Array.prototype.forEach.call($("keybar").querySelectorAll("button"), function(b){
+  b.addEventListener("mousedown", function(e){ e.preventDefault(); });
+  b.addEventListener("click", function(){
+    var target = lastGap || gaps.filter(function(g){ return !g.value; })[0] || gaps[0];
+    if(!target) return;
+    target.value = b.getAttribute("data-ch");
+    target.classList.remove("ok","bad");
+    saveFill();
+    var i = gaps.indexOf(target);
+    if(gaps[i+1]){ gaps[i+1].focus(); lastGap = gaps[i+1]; }
+  });
+});
+
+function saveFill(){ store(SKEY + "-fill", gaps.map(function(g){ return g.value; })); }
+(function restoreFill(){
+  var saved = load(SKEY + "-fill");
+  if(saved && saved.length === gaps.length){
+    saved.forEach(function(val,i){ gaps[i].value = val || ""; });
+  }
+})();
+
+$("check-fill").addEventListener("click", function(){
+  var box = $("fill-result");
+  if(!nactenoOk()){ hlaskaNenacteno(box); return; }
+  var wrong = 0;
+  VETY.forEach(function(v, si){
+    var li = fillList.children[si];
+    if(!li) return;
+    var why = li.querySelector(".why");
+    why.innerHTML = "";
+    var misses = [];
+    v.g.forEach(function(g, gi){
+      var inp = $("g-"+si+"-"+gi);
+      if(!inp) return;
+      var val = (inp.value || "").toLowerCase();
+      inp.classList.remove("ok","bad");
+      if(val === g[0]){ inp.classList.add("ok"); }
+      else {
+        inp.classList.add("bad");
+        wrong++;
+        misses.push([val, g[0], g[1]]);
+      }
+    });
+    if(misses.length){
+      misses.forEach(function(m){
+        var p = document.createElement("p");
+        p.innerHTML = (m[0] ? "Napsala jsi <b>"+esc(m[0])+"</b>, správně je <span class=\"right\">"+esc(m[1])+"</span> — "
+                            : "Chybí <span class=\"right\">"+esc(m[1])+"</span> — ") + esc(m[2]);
+        why.appendChild(p);
+      });
+      why.hidden = false;
+    } else {
+      why.hidden = true;
+    }
+  });
+  box.hidden = false;
+  box.className = "result";
+  box.innerHTML = wrong === 0
+    ? "<h2>Všechno sedí</h2><p>Zelená políčka jsou správně. Tohle už umíš, můžeš si dát diktát.</p>"
+    : "<h2>Něco ještě nesedí</h2><p>U vět, kde je políčko červené, se dole ukázalo vysvětlení. Přečti si ho a zkus to znovu — kolikrát chceš.</p>";
+  box.scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+$("reset-fill").addEventListener("click", function(){
+  gaps.forEach(function(g){ g.value=""; g.classList.remove("ok","bad"); });
+  Array.prototype.forEach.call(fillList.querySelectorAll(".why"), function(w){ w.hidden=true; w.innerHTML=""; });
+  $("fill-result").hidden = true;
+  saveFill();
+  if(gaps[0]) gaps[0].focus();
+});
+
+/* ---------------- diktat ---------------- */
+var dictList = $("dict-list");
+var areas = Array.prototype.slice.call(dictList.querySelectorAll("textarea.write"));
+areas.forEach(function(ta){ ta.addEventListener("input", saveDict); });
+
+function saveDict(){ store(SKEY + "-dict", areas.map(function(t){ return t.value; })); }
+(function restoreDict(){
+  var saved = load(SKEY + "-dict");
+  if(saved && saved.length === areas.length){
+    saved.forEach(function(val,i){ areas[i].value = val || ""; });
+  }
+})();
+
+Array.prototype.forEach.call(dictList.querySelectorAll(".play"), function(b){
+  b.addEventListener("click", function(){
+    var i = parseInt(b.getAttribute("data-i"), 10);
+    var r = parseFloat(b.getAttribute("data-rate"));
+    if(VETY[i]) say(plain(VETY[i]), r);
+  });
+});
+
+/* hlas */
+var voice = null;
+function pickVoice(){
+  var vs = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  for(var i=0;i<vs.length;i++){
+    if(vs[i].lang && vs[i].lang.toLowerCase().indexOf("cs") === 0){ voice = vs[i]; break; }
+  }
+  var n = $("voice-notice");
+  if(!window.speechSynthesis || (vs.length && !voice)){
+    n.hidden = false;
+    n.innerHTML = "Tvůj prohlížeč neumí číst česky, takže tlačítko <b>Přehrát</b> nemusí znít správně. Poproš mámu nebo tátu, ať ti věty nadiktují — mají je v souboru s řešením.";
+  } else {
+    n.hidden = true;
+  }
+}
+if(window.speechSynthesis){
+  pickVoice();
+  window.speechSynthesis.onvoiceschanged = pickVoice;
+}
+function say(text, rate){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = "cs-CZ";
+  if(voice) u.voice = voice;
+  u.rate = rate;
+  u.pitch = 1;
+  window.speechSynthesis.speak(u);
+}
+
+/* porovnani po slovech */
+var INTERP = /^[.,;:!?"'\u201e\u201c\u201d()\[\]\u2013\u2014-]+/;
+var KONCP  = /[.,;:!?"'\u201e\u201c\u201d()\[\]\u2013\u2014-]+$/;
+function tokens(s){
+  return s.trim().split(/\s+/)
+    .map(function(w){ return w.replace(INTERP, "").replace(KONCP, ""); })
+    .filter(function(w){ return w.length; });
+}
+function lcs(a, b){
+  var n=a.length, m=b.length, i, j;
+  var d=[]; for(i=0;i<=n;i++){ d.push(new Array(m+1).fill(0)); }
+  for(i=1;i<=n;i++) for(j=1;j<=m;j++)
+    d[i][j] = a[i-1]===b[j-1] ? d[i-1][j-1]+1 : Math.max(d[i-1][j], d[i][j-1]);
+  var okA=new Array(n).fill(false), okB=new Array(m).fill(false);
+  i=n; j=m;
+  while(i>0 && j>0){
+    if(a[i-1]===b[j-1]){ okA[i-1]=true; okB[j-1]=true; i--; j--; }
+    else if(d[i-1][j] >= d[i][j-1]) i--; else j--;
+  }
+  return {okA:okA, okB:okB};
+}
+function renderLine(words, flags, cls){
+  return "<div class=\"line "+cls+"\">" + words.map(function(w,i){
+    return flags[i] ? esc(w) : "<mark>"+esc(w)+"</mark>";
+  }).join(" ") + "</div>";
+}
+
+$("check-dict").addEventListener("click", function(){
+  var box = $("dict-result");
+  if(!nactenoOk()){ hlaskaNenacteno(box); return; }
+  VETY.forEach(function(v, si){
+    var li = dictList.children[si];
+    if(!li) return;
+    var right = tokens(plain(v));
+    var mine  = tokens(areas[si] ? areas[si].value : "");
+    var d = li.querySelector(".diff");
+    if(!mine.length){
+      d.hidden = false;
+      d.innerHTML = "<p class=\"lbl\">Nenapsáno</p><div class=\"line\">"+esc(plain(v))+"</div>";
+      return;
+    }
+    var r = lcs(right, mine);
+    var errs = r.okA.filter(function(x){ return !x; }).length;
+    d.hidden = false;
+    if(errs === 0 && r.okB.every(function(x){ return x; })){
+      d.innerHTML = "<p class=\"lbl\">Správně</p><div class=\"line correct\">"+esc(plain(v))+"</div>";
+    } else {
+      d.innerHTML = "<div><span class=\"lbl\">Správně</span>"+renderLine(right, r.okA, "correct")+"</div>"
+                  + "<div><span class=\"lbl\">Tvůj zápis</span>"+renderLine(mine, r.okB, "")+"</div>";
+    }
+  });
+  box.hidden = false;
+  box.className = "result";
+  box.innerHTML = "<h2>Porovnáno</h2><p>U každé věty máš nahoře správné znění a pod ním svoje. Zvýrazněná slova se liší — tečky a čárky ti soubor nepohlídá, ty si projdi sama.</p>";
+  box.scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+$("reset-dict").addEventListener("click", function(){
+  areas.forEach(function(ta, si){
+    ta.value = "";
+    var li = dictList.children[si];
+    if(!li) return;
+    var d = li.querySelector(".diff");
+    d.hidden = true; d.innerHTML = "";
+  });
+  $("dict-result").hidden = true;
+  saveDict();
+});
+
+})();
+</script>
+
+</body>
+</html>

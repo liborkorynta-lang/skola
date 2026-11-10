@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-title" content="Škola">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1F5FAF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#143E73" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="ikona.png">
+<link rel="icon" href="ikona.png">
+<title>Škola</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{--ground:#F4F1EA;--surface:#FFFFFF;--sunk:#ECE7DD;--line:#DDD5C7;--text:#1F1B16;--muted:#6B5E50;
+  --grass1:#1F5FAF;--grass2:#2468B8;--chalk:rgba(255,255,255,.62);--gold:#F2C14E;--lock:#9A8F82;
+  --shadow:0 1px 2px rgba(34,28,22,.06),0 10px 24px rgba(34,28,22,.07);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root{--ground:#121010;--surface:#1D1A17;--sunk:#27231F;--line:#3A342D;
+  --text:#EEE7DD;--muted:#A79B8C;--grass1:#143E73;--grass2:#17457F;--chalk:rgba(255,255,255,.42);--gold:#F2C14E;--lock:#7C7268;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 24px rgba(0,0,0,.3);color-scheme:dark}}
+.s-cesky_jazyk{--c:#26418F;--on-c:#fff}
+@media (prefers-color-scheme:dark){.s-cesky_jazyk{--c:#9DB6F5;--on-c:#14110E}}
+.s-matematika{--c:#6B3FA0;--on-c:#fff}
+@media (prefers-color-scheme:dark){.s-matematika{--c:#C3A2EE;--on-c:#14110E}}
+.s-anglictina{--c:#A3324A;--on-c:#fff}
+@media (prefers-color-scheme:dark){.s-anglictina{--c:#F09AAE;--on-c:#14110E}}
+.s-dejepis{--c:#8A4B16;--on-c:#fff}
+@media (prefers-color-scheme:dark){.s-dejepis{--c:#F0B37E;--on-c:#14110E}}
+.s-zemepis{--c:#1D6A82;--on-c:#fff}
+@media (prefers-color-scheme:dark){.s-zemepis{--c:#86C8DD;--on-c:#14110E}}
+.s-prirodopis{--c:#2F6B3A;--on-c:#fff}
+@media (prefers-color-scheme:dark){.s-prirodopis{--c:#8FD19A;--on-c:#14110E}}
+.s-fyzika{--c:#5A3E8C;--on-c:#fff}
+@media (prefers-color-scheme:dark){.s-fyzika{--c:#BBA6EA;--on-c:#14110E}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--grass1)}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+.in{max-width:1180px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+
+/* ---------- hriste ---------- */
+.hero{position:relative;overflow:hidden;color:#fff;
+  background:repeating-linear-gradient(90deg,var(--grass1) 0 64px,var(--grass2) 64px 128px);
+  padding:max(26px,env(safe-area-inset-top,0px)) 0 34px}
+.m{position:absolute;pointer-events:none;border:2px solid var(--chalk)}
+.m.edge{inset:12px;border-radius:4px}
+.m.half{top:12px;bottom:12px;left:50%;width:0;border-width:0 0 0 2px}
+.m.circle{left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%}
+.m.spot{left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--chalk);border:0}
+.m.box{top:22%;bottom:22%;width:110px;border-width:2px}
+.m.box.l{left:12px;border-left:0}.m.box.r{right:12px;border-right:0}
+.m.goal{top:38%;bottom:38%;width:40px}
+.m.goal.l{left:12px;border-left:0}.m.goal.r{right:12px;border-right:0}
+.m.q{top:12px;bottom:12px;width:0;border-width:0 0 0 2px}.m.q.l{left:25%}.m.q.r{left:75%}
+.m.d{top:50%;width:150px;height:236px;margin-top:-118px}
+.m.d.l{left:12px;border-left:0;border-radius:0 118px 118px 0}.m.d.r{right:12px;border-right:0;border-radius:118px 0 0 118px}
+.m.d2{top:50%;width:184px;height:304px;margin-top:-152px;border-style:dashed}
+.m.d2.l{left:12px;border-left:0;border-radius:0 152px 152px 0}.m.d2.r{right:12px;border-right:0;border-radius:152px 0 0 152px}
+.m.pk{top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--chalk);border:0}.m.pk.l{left:118px}.m.pk.r{right:118px}
+.hero .in{position:relative;display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center;min-height:250px}
+.eyebrow{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.88)}
+h1{margin:8px 0 0;font-family:var(--serif);font-size:clamp(36px,6vw,60px);font-weight:700;line-height:1.05;text-shadow:0 2px 0 rgba(0,0,0,.16)}
+.ball{display:inline-block;font-size:.78em;margin-left:8px;animation:kop 2.2s ease-in-out infinite;transform-origin:70% 90%}
+@keyframes kop{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(12deg)}}
+.lede{margin:10px 0 0;color:rgba(255,255,255,.93);font-size:18px;max-width:34ch}
+.next{background:rgba(255,255,255,.96);color:#1F1B16;border-radius:16px;padding:16px 18px 18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.22);max-width:420px;justify-self:end;width:100%}
+@media (prefers-color-scheme:dark){.next{background:rgba(29,26,23,.96);color:var(--text)}}
+.next .k{margin:0;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.next .t{margin:4px 0 2px;font-family:var(--serif);font-size:22px;font-weight:700;line-height:1.2}
+.next .d{margin:0 0 12px;color:var(--muted);font-size:15.5px}
+.next a{display:inline-block;background:var(--grass1);color:#fff;text-decoration:none;font-weight:700;border-radius:11px;padding:10px 18px}
+@media (prefers-color-scheme:dark){.next a{background:#9DB6F5;color:#0E1626}}
+
+/* ---------- jak to funguje ---------- */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:-22px auto 0;position:relative}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);
+  display:flex;gap:12px;align-items:center}
+.step .n{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;
+  background:var(--sunk);color:var(--text);font-size:16px}
+.step b{display:block;font-size:16px}
+.step span.s{display:block;color:var(--muted);font-size:14px;line-height:1.3}
+
+/* ---------- predmety ---------- */
+main{padding:30px 0 10px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 14px}
+.sec-h h2{margin:0;font-family:var(--serif);font-size:26px}
+.sec-h p{margin:0;color:var(--muted);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.ch{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--c);color:var(--on-c);position:relative;overflow:hidden}
+.ch::after{content:"";position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;border:2px solid currentColor;opacity:.18}
+.ch .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.9)}
+.ch h2{margin:0;font-family:var(--serif);font-size:22px;font-weight:700;flex:1}
+.ch .cnt{font-size:13px;font-weight:700;opacity:.85}
+.card ul{list-style:none;margin:0;padding:6px 0}
+.topic{padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center}
+.topic+.topic{border-top:1px solid var(--line)}
+.tt{display:flex;align-items:baseline;gap:10px;min-width:0}
+.no{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.05em}
+.nm{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.25}
+.st{grid-column:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pips{display:flex;gap:6px}
+.pip{font-size:12.5px;font-weight:700;padding:2px 9px 2px 22px;border-radius:999px;background:var(--sunk);color:var(--muted);position:relative}
+.pip::before{content:"";position:absolute;left:8px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;border:2px solid currentColor;box-sizing:border-box}
+.pip.on{background:color-mix(in srgb,var(--c) 16%,var(--surface));color:var(--c)}
+.pip.on::before{background:currentColor}
+.state{font-size:13.5px;color:var(--muted)}
+.state.done{color:var(--c);font-weight:700}
+.o{grid-column:2;grid-row:1/span 2;display:flex;flex-direction:column;gap:8px;align-items:stretch}
+a.b{display:block;text-align:center;text-decoration:none;font-weight:700;font-size:16px;border-radius:11px;padding:9px 16px;
+  background:var(--c);color:var(--on-c);-webkit-tap-highlight-color:transparent;white-space:nowrap}
+a.b.t{background:transparent;color:var(--c);border:2px solid var(--c);padding:7px 14px}
+a.b.t.locked{color:var(--lock);border-color:var(--line);border-style:dashed}
+a.b:active{transform:scale(.97)}
+a.b:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.lockmsg{grid-column:1/-1;margin:0;font-size:14.5px;color:var(--muted);background:var(--sunk);border-radius:10px;padding:8px 12px}
+.empty{color:var(--muted)}
+
+/* ---------- stridacka a pata ---------- */
+.bench{margin:30px 0 0;padding:18px;border:1px dashed var(--line);border-radius:18px}
+.bench h2{margin:0;font-family:var(--serif);font-size:20px}
+.bench p{margin:2px 0 12px;color:var(--muted);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:15px;font-weight:600;
+  background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+footer{margin-top:40px;color:rgba(255,255,255,.92);
+  background:repeating-linear-gradient(90deg,var(--grass1) 0 64px,var(--grass2) 64px 128px);position:relative;overflow:hidden}
+footer::before{content:"";position:absolute;left:12px;right:12px;top:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));border:2px solid var(--chalk);border-bottom:0;border-radius:4px 4px 0 0;pointer-events:none}
+footer .in{position:relative;padding-top:26px;padding-bottom:max(30px,env(safe-area-inset-bottom,0px));display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+footer p{margin:0;font-size:15.5px;max-width:52ch}
+footer b{color:#fff}
+footer .bye{font-family:var(--serif);font-size:20px;font-weight:700;color:#fff}
+
+/* ---------- mobil ---------- */
+@media (max-width:760px){
+  .hero{padding-bottom:40px}
+  .hero .in{grid-template-columns:1fr;min-height:0;gap:20px}
+  .next{justify-self:stretch;max-width:none}
+  .m.half,.m.q,.m.d.l,.m.d2.l,.m.pk{display:none}
+  .how{grid-template-columns:repeat(3,1fr);gap:8px}
+  .step{flex-direction:column;gap:4px;padding:10px 6px;text-align:center}
+  .step .n{width:28px;height:28px;font-size:14px}
+  .step span.s{display:none}
+  .grid{grid-template-columns:1fr}
+  .sec-h{flex-direction:column;gap:2px}
+}
+@media (max-width:420px){
+  .topic{grid-template-columns:1fr}
+  .o{grid-column:1;grid-row:auto;flex-direction:row}
+  .o a.b{flex:1}
+}
+@media (prefers-reduced-motion:reduce){.ball{animation:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <span class="m edge"></span><span class="m half"></span><span class="m q l"></span><span class="m q r"></span>
+  <span class="m d l"></span><span class="m d r"></span><span class="m d2 l"></span><span class="m d2 r"></span>
+  <span class="m pk l"></span><span class="m pk r"></span>
+  <div class="in">
+    <div>
+      <p class="eyebrow">6. třída · hokejové hřiště</p>
+      <h1>Ahoj, Viky!<span class="ball" aria-hidden="true">🏑</span></h1>
+      <p class="lede">Tady se trénuje na písemky. Nejdřív procvičuj, a až to umíš, řekni tátovi o test.</p>
+    </div>
+    <div class="next" id="next" hidden></div>
+  </div>
+</header>
+
+<div class="in">
+  <div class="how">
+    <div class="step"><span class="n">1</span><div><b>Procvičuj</b><span class="s">Trénink: zkoušej, kolikrát chceš.</span></div></div>
+    <div class="step"><span class="n">2</span><div><b>Řekni tátovi</b><span class="s">Až to umíš, dostaneš test.</span></div></div>
+    <div class="step"><span class="n">3</span><div><b>Test</b><span class="s">Zápas: řešení si odemkneš kódem od táty.</span></div></div>
+  </div>
+</div>
+
+<main class="in">
+  <div class="sec-h"><h2>Předměty</h2><p>Nejnovější látka je v každém předmětu nahoře.</p></div>
+  <div class="grid">
+<section class="card s-cesky_jazyk"><header class="ch"><span class="ic" aria-hidden="true">✏️</span><h2>Český jazyk</h2><span class="cnt">1 látka</span></header><ul><li class="topic" data-skey="viky-cj-diktat-01" data-parts="" data-name="Měkké a tvrdé i/y" data-href="cesky_jazyk/CJ_diktat_01_TRENAZER.html"><div class="tt"><span class="no">01</span><span class="nm">Měkké a tvrdé i/y</span></div><div class="st"><span class="pips"></span><span class="state"></span></div><div class="o"><a class="b" href="cesky_jazyk/CJ_diktat_01_TRENAZER.html">Procvičovat</a></div><p class="lockmsg" hidden>🔒 Test se odemkne, až budeš mít v procvičování Základ i Těžší celé správně.</p></li></ul></section>
+<section class="card s-dejepis"><header class="ch"><span class="ic" aria-hidden="true">🏺</span><h2>Dějepis</h2><span class="cnt">2 látky</span></header><ul><li class="topic" data-skey="viky-d-vyvoj-cloveka-02" data-parts="" data-name="Jak se vyvíjel člověk" data-href="dejepis/D_vyvoj-cloveka_02_TRENAZER.html"><div class="tt"><span class="no">02</span><span class="nm">Jak se vyvíjel člověk</span></div><div class="st"><span class="pips"></span><span class="state"></span></div><div class="o"><a class="b" href="dejepis/D_vyvoj-cloveka_02_TRENAZER.html">Procvičovat</a></div><p class="lockmsg" hidden>🔒 Test se odemkne, až budeš mít v procvičování Základ i Těžší celé správně.</p></li><li class="topic" data-skey="viky-d-uvod-pravek-01" data-parts="" data-name="Století, prameny a pravěk" data-href="dejepis/D_uvod-pravek_01_TRENAZER.html"><div class="tt"><span class="no">01</span><span class="nm">Století, prameny a pravěk</span></div><div class="st"><span class="pips"></span><span class="state"></span></div><div class="o"><a class="b" href="dejepis/D_uvod-pravek_01_TRENAZER.html">Procvičovat</a></div><p class="lockmsg" hidden>🔒 Test se odemkne, až budeš mít v procvičování Základ i Těžší celé správně.</p></li></ul></section>
+<section class="card s-zemepis"><header class="ch"><span class="ic" aria-hidden="true">🌍</span><h2>Zeměpis</h2><span class="cnt">1 látka</span></header><ul><li class="topic" data-skey="viky-z-souradnice-mapa-01" data-parts="" data-name="Země, souřadnice a mapa" data-href="zemepis/Z_souradnice-mapa_01_TRENAZER.html"><div class="tt"><span class="no">01</span><span class="nm">Země, souřadnice a mapa</span></div><div class="st"><span class="pips"></span><span class="state"></span></div><div class="o"><a class="b" href="zemepis/Z_souradnice-mapa_01_TRENAZER.html">Procvičovat</a></div><p class="lockmsg" hidden>🔒 Test se odemkne, až budeš mít v procvičování Základ i Těžší celé správně.</p></li></ul></section>
+  </div>
+<section class="bench"><h2>Na střídačce</h2><p>Tyhle předměty zatím trénink nemají.</p><div class="chips"><span class="chip s-matematika"><span aria-hidden="true">🔢</span>Matematika</span><span class="chip s-anglictina"><span aria-hidden="true">💬</span>Angličtina</span><span class="chip s-prirodopis"><span aria-hidden="true">🌿</span>Přírodopis</span><span class="chip s-fyzika"><span aria-hidden="true">🔭</span>Fyzika</span></div></section>
+</main>
+
+<footer>
+  <div class="in">
+    <p id="tip">📱 <b>Na iPhonu:</b> v Safari klepni na Sdílet → „Přidat na plochu". Hřiště pak budeš mít jako appku s hokejkou.</p>
+    <span class="bye">Hodně gólů! 🏑</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var NAZEV = {zak: "Základ", tez: "Těžší"};
+function cti(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function hotovo(skey){ try{ return JSON.parse(cti(skey + "-hotovo") || "{}") || {}; }catch(e){ return {}; } }
+try{ if (window.navigator.standalone || matchMedia("(display-mode: standalone)").matches) document.getElementById("tip").hidden = true; }catch(e){}
+
+var dalsi = null, vse = 0, natrenovano = 0;
+Array.prototype.forEach.call(document.querySelectorAll(".topic"), function(li){
+  var skey = li.getAttribute("data-skey"), parts = (li.getAttribute("data-parts") || "").split(",").filter(Boolean);
+  if(!skey || !parts.length) return;
+  vse++;
+  var h = hotovo(skey), zbyva = parts.filter(function(p){ return !h[p]; });
+  Array.prototype.forEach.call(li.querySelectorAll(".pip"), function(p){
+    if(h[p.getAttribute("data-part")]) p.classList.add("on");
+  });
+  var st = li.querySelector(".state");
+  if(!zbyva.length){ st.textContent = "Natrénováno ✓"; st.classList.add("done"); natrenovano++; }
+  else if(cti(skey)){ st.textContent = "Rozehráno"; }
+  else { st.textContent = "Nové"; }
+  var t = li.querySelector("[data-test]");
+  if(t && zbyva.length){
+    t.classList.add("locked"); t.setAttribute("aria-disabled", "true"); t.textContent = "🔒 Test";
+    t.addEventListener("click", function(e){ e.preventDefault(); li.querySelector(".lockmsg").hidden = false; });
+  }
+  if(!dalsi && zbyva.length){
+    dalsi = {li: li, cast: NAZEV[zbyva[0]] || zbyva[0], card: li.closest ? li.closest(".card") : null};
+  }
+});
+
+var box = document.getElementById("next");
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+if(dalsi){
+  var predmet = dalsi.card ? dalsi.card.querySelector("h2").textContent : "";
+  box.innerHTML = '<p class="k">Další krok · ' + esc(predmet) + '</p><p class="t">' + esc(dalsi.li.getAttribute("data-name")) +
+    '</p><p class="d">Pokračuj částí <b>' + esc(dalsi.cast) + '</b>.</p><a href="' + esc(dalsi.li.getAttribute("data-href")) + '">Jdu trénovat</a>';
+  box.hidden = false;
+} else if(vse){
+  box.innerHTML = '<p class="k">Skvělá práce</p><p class="t">Všechno natrénováno! 🏆</p><p class="d">Testy máš odemčené. Klidně si cokoli zopakuj.</p>';
+  box.hidden = false;
+}
+})();
+</script>
+</body>
+</html>

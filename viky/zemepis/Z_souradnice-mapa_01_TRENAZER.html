@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Země, souřadnice a mapa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --ground:#F8F6F1;--surface:#FFFFFF;--sunk:#EFECE4;--line:#DDD8CC;
+  --text:#1E1B16;--muted:#6B6558;--ink:#8A4B16;--on-ink:#FFFFFF;--ink-soft:#F6E9DC;
+  --ok:#17703F;--ok-soft:#E1F2E7;--err:#B32B36;--err-soft:#FBE6E7;
+  --shadow:0 1px 2px rgba(30,27,22,.06),0 6px 18px rgba(30,27,22,.05);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#15130F;--surface:#1F1C17;--sunk:#29251F;--line:#3A352D;
+    --text:#ECE7DD;--muted:#A69E8F;--ink:#F0B37E;--on-ink:#15130F;--ink-soft:#3A2A1C;
+    --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#15130F;--surface:#1F1C17;--sunk:#29251F;--line:#3A352D;
+  --text:#ECE7DD;--muted:#A69E8F;--ink:#F0B37E;--on-ink:#15130F;--ink-soft:#3A2A1C;
+  --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:30px 16px 80px;display:flex;flex-direction:column;gap:22px}
+.eyebrow{margin:0;font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+h1{margin:6px 0 0;font-family:var(--serif);font-size:clamp(28px,7vw,40px);font-weight:600;line-height:1.1}
+.lede{margin:10px 0 0;color:var(--muted)}
+.modes{display:flex;gap:4px;margin-top:18px;padding:4px;background:var(--sunk);border-radius:11px;border:1px solid var(--line)}
+.modes button{flex:1;appearance:none;border:0;background:transparent;color:var(--muted);font:600 14px var(--sans);padding:9px 4px;border-radius:8px;cursor:pointer}
+.modes button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.modes button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h2.part{margin:8px 0 0;font-family:var(--serif);font-size:22px;font-weight:600}
+.hint{margin:4px 0 0;font-size:15px;color:var(--muted)}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:q}
+ol.qs>li{counter-increment:q;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 44px;position:relative;box-shadow:var(--shadow)}
+ol.qs>li::before{content:counter(q);position:absolute;left:16px;top:15px;font-size:13px;font-weight:700;color:var(--muted)}
+ol.qs>li.ok{border-color:var(--ok)}
+ol.qs>li.bad{border-color:var(--err)}
+.qt{margin:0 0 8px;font-weight:600}
+.qt.inline{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0}
+.yr{font-family:var(--serif);font-weight:400;color:var(--ink);white-space:nowrap}
+.ans{display:inline-flex;align-items:baseline;gap:2px;font-family:var(--serif)}
+input.num{width:2.6em;font:600 19px var(--serif);text-align:center;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);padding:0 0 1px}
+input.num:focus{outline:0;background:var(--ink-soft)}
+select{font:16px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+select:focus{outline:2px solid var(--ink);outline-offset:1px}
+.orow{display:flex;align-items:center;gap:10px;padding:5px 0}
+.orow select{flex:none;width:4.2em}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.opt input{margin:4px 0 0;accent-color:var(--ink)}
+.opt:has(input:checked){background:var(--ink-soft);border-color:var(--ink)}
+.good{color:var(--ok)!important;border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.wrong{color:var(--err)!important;border-color:var(--err)!important;background:var(--err-soft)!important}
+.why{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--err-soft);color:var(--text);font-size:15px}
+.why b{color:var(--err)}
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:12px 18px;font:700 16px var(--sans);cursor:pointer;background:var(--ink);color:var(--on-ink)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.result h2{margin:0 0 4px;font-size:18px}
+.result p{margin:0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 6px;font-family:var(--serif);font-size:19px}
+.card p,.card ul{margin:6px 0}
+.card ul{padding-left:20px}
+.ex{font-family:var(--serif);color:var(--ink)}
+section{display:flex;flex-direction:column;gap:14px}
+
+.grid{display:flex;flex-direction:column;gap:8px}
+.grow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:4px 0;border-top:1px dashed var(--line)}
+.grow:first-child{border-top:0}
+.gs{display:flex;gap:8px;flex-wrap:wrap}
+.figbox{display:flex;justify-content:center;margin:4px 0 10px}
+.fig{width:100%;max-width:280px;height:auto}
+.symw{display:inline-flex;align-items:center;gap:10px}
+.symw svg{border:1px solid var(--line);border-radius:8px}
+.card.warn{border-color:var(--err);background:var(--err-soft)}
+.card.warn h3{color:var(--err)}
+.modes button{flex:1 1 auto;padding:9px 6px;font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="mobil" style="background:var(--ink);color:var(--on-ink);border-radius:12px;padding:14px 16px;font-weight:600">
+  <a href="https://liborkorynta-lang.github.io/skola/viky/zemepis/Z_souradnice-mapa_01_TRENAZER.html" style="color:var(--on-ink);text-decoration:underline">Pro otevření na iPhonu klikni sem</a>
+</div>
+<header>
+  <p class="eyebrow">Zeměpis · trenažér</p>
+  <h1>Země, souřadnice a mapa</h1>
+  <p class="lede">Všechno je ze sešitu. Kde máš v sešitu chybu, najdeš opravu v taháku. Zkoušet můžeš, kolikrát chceš.</p>
+  <div class="modes" role="tablist">
+    <button id="t-zeme" role="tab" aria-selected="true">Země</button>
+    <button id="t-cary" role="tab" aria-selected="false">Čáry</button>
+    <button id="t-sour" role="tab" aria-selected="false">Souřadnice</button>
+    <button id="t-mapa" role="tab" aria-selected="false">Mapa</button>
+    <button id="t-tah" role="tab" aria-selected="false">Tahák</button>
+  </div>
+</header>
+
+<section id="zeme" class="part-sec">
+  <h2 class="part">Vesmír a Země</h2>
+  <p class="hint">Vyber správnou odpověď.</p>
+  <ol class="qs">
+<li class="q" data-q="v1">
+  <p class="qt">Co je galaxie?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="v1" value="0" data-k="v1"><span>obrovská skupina měsíců</span></label><label class="opt"><input type="radio" name="v1" value="1" data-k="v1"><span>soustava hvězd</span></label><label class="opt"><input type="radio" name="v1" value="2" data-k="v1"><span>jedna velká planeta</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="v2">
+  <p class="qt">Jak se jmenuje galaxie, do které patříme my?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="v2" value="0" data-k="v2"><span>Sluneční soustava</span></label><label class="opt"><input type="radio" name="v2" value="1" data-k="v2"><span>Velký vůz</span></label><label class="opt"><input type="radio" name="v2" value="2" data-k="v2"><span>Mléčná dráha</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="v3">
+  <p class="qt">Za jak dlouho oběhne Země jednou kolem Slunce?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="v3" value="0" data-k="v3"><span>za 24 hodin</span></label><label class="opt"><input type="radio" name="v3" value="1" data-k="v3"><span>za 365 ¼ dne</span></label><label class="opt"><input type="radio" name="v3" value="2" data-k="v3"><span>za 30 dní</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="v4">
+  <p class="qt">Za jak dlouho se Země jednou otočí kolem své osy?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="v4" value="0" data-k="v4"><span>za 24 hodin</span></label><label class="opt"><input type="radio" name="v4" value="1" data-k="v4"><span>za 7 dní</span></label><label class="opt"><input type="radio" name="v4" value="2" data-k="v4"><span>za 365 dní</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="v5">
+  <p class="qt">Mezi čím prochází zemská osa?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="v5" value="0" data-k="v5"><span>mezi Londýnem a Prahou</span></label><label class="opt"><input type="radio" name="v5" value="1" data-k="v5"><span>mezi rovníkem a obratníkem</span></label><label class="opt"><input type="radio" name="v5" value="2" data-k="v5"><span>mezi severním a jižním pólem</span></label></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <h2 class="part">Přestupný rok</h2>
+  <ol class="qs">
+<li class="q" data-q="v6">
+  <p class="qt">Kolik dní má únor v přestupném roce?</p>
+  <label class="ans"><input class="num" id="v6" data-k="v6" type="text" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="odpověď" style="width:2.6em"> dní</label>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="v7">
+  <p class="qt">Proč máme přestupný rok?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="v7" value="0" data-k="v7"><span>protože je únor moc krátký</span></label><label class="opt"><input type="radio" name="v7" value="1" data-k="v7"><span>každý rok zbude ¼ dne a za 4 roky se z toho poskládá celý den</span></label><label class="opt"><input type="radio" name="v7" value="2" data-k="v7"><span>protože se Země někdy točí pomaleji</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="v8">
+  <p class="qt">Je to přestupný rok?</p>
+  <div class="grid"><div class="grow"><span class="gl"><b>2036</b></span><span class="gs"><select id="v8a" data-k="v8a" aria-label="2036"><option value="">vyber…</option><option value="ano">ano</option><option value="ne">ne</option></select></span></div><div class="grow"><span class="gl"><b>2042</b></span><span class="gs"><select id="v8b" data-k="v8b" aria-label="2042"><option value="">vyber…</option><option value="ano">ano</option><option value="ne">ne</option></select></span></div><div class="grow"><span class="gl"><b>2048</b></span><span class="gs"><select id="v8c" data-k="v8c" aria-label="2048"><option value="">vyber…</option><option value="ano">ano</option><option value="ne">ne</option></select></span></div><div class="grow"><span class="gl"><b>2052</b></span><span class="gs"><select id="v8d" data-k="v8d" aria-label="2052"><option value="">vyber…</option><option value="ano">ano</option><option value="ne">ne</option></select></span></div><div class="grow"><span class="gl"><b>3000</b></span><span class="gs"><select id="v8e" data-k="v8e" aria-label="3000"><option value="">vyber…</option><option value="ano">ano</option><option value="ne">ne</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <div class="bar"><button class="btn chk">Zkontrolovat</button><button class="btn ghost rst">Začít znovu</button></div>
+  <div class="result" hidden></div>
+</section>
+
+<section id="cary" class="part-sec" hidden>
+  <h2 class="part">Čáry na Zemi</h2>
+  <ol class="qs">
+<li class="q" data-q="c1">
+  <p class="qt">Podívej se na glóbus. Které číslo má tahle čára?</p>
+  <div class="figbox"><svg class="fig" viewBox="0 0 260 262" role="img" aria-label="Glóbus s očíslovanými čarami 1 až 6"><circle cx="130" cy="120" r="100" fill="var(--sunk)" stroke="var(--muted)" stroke-width="2"/><text x="130" y="12" text-anchor="middle" font-size="12" fill="var(--muted)">sever</text><line x1="130" y1="20" x2="130" y2="220" stroke="var(--ink)" stroke-width="2.5"/><line x1="90.1" y1="28.3" x2="169.9" y2="28.3" stroke="var(--ink)" stroke-width="2.5"/><circle cx="77.1" cy="28.3" r="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><text x="77.1" y="32.8" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">1</text><line x1="38.3" y1="80.1" x2="221.7" y2="80.1" stroke="var(--ink)" stroke-width="2.5"/><circle cx="25.3" cy="80.1" r="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><text x="25.3" y="84.6" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">2</text><line x1="30.0" y1="120.0" x2="230.0" y2="120.0" stroke="var(--ink)" stroke-width="2.5"/><circle cx="17.0" cy="120.0" r="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><text x="17.0" y="124.5" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">3</text><line x1="38.3" y1="159.9" x2="221.7" y2="159.9" stroke="var(--ink)" stroke-width="2.5"/><circle cx="25.3" cy="159.9" r="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><text x="25.3" y="164.4" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">4</text><line x1="90.1" y1="211.7" x2="169.9" y2="211.7" stroke="var(--ink)" stroke-width="2.5"/><circle cx="77.1" cy="211.7" r="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><text x="77.1" y="216.2" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">5</text><circle cx="130" cy="233" r="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><text x="130" y="237.5" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">6</text><text x="130" y="259" text-anchor="middle" font-size="12" fill="var(--muted)">jih</text></svg></div>
+  <div class="grid"><div class="grow"><span class="gl">rovník</span><span class="gs"><select id="c1a" data-k="c1a" aria-label="rovník"><option value="">vyber…</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></span></div><div class="grow"><span class="gl">nultý poledník</span><span class="gs"><select id="c1b" data-k="c1b" aria-label="nultý poledník"><option value="">vyber…</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></span></div><div class="grow"><span class="gl">severní polární kruh</span><span class="gs"><select id="c1c" data-k="c1c" aria-label="severní polární kruh"><option value="">vyber…</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></span></div><div class="grow"><span class="gl">jižní polární kruh</span><span class="gs"><select id="c1d" data-k="c1d" aria-label="jižní polární kruh"><option value="">vyber…</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c2">
+  <p class="qt">Jak se jmenují čáry 2 a 4?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c2" value="0" data-k="c2"><span>obratníky</span></label><label class="opt"><input type="radio" name="c2" value="1" data-k="c2"><span>polární kruhy</span></label><label class="opt"><input type="radio" name="c2" value="2" data-k="c2"><span>poledníky</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c3">
+  <p class="qt">Jak se jinak říká rovníku?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c3" value="0" data-k="c3"><span>poledník</span></label><label class="opt"><input type="radio" name="c3" value="1" data-k="c3"><span>ekvátor</span></label><label class="opt"><input type="radio" name="c3" value="2" data-k="c3"><span>obratník</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c4">
+  <p class="qt">Co je poledník?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c4" value="0" data-k="c4"><span>myšlená čára od severního k jižnímu pólu</span></label><label class="opt"><input type="radio" name="c4" value="1" data-k="c4"><span>myšlená čára kolem Země uprostřed mezi póly</span></label><label class="opt"><input type="radio" name="c4" value="2" data-k="c4"><span>hranice mezi dvěma státy</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c5">
+  <p class="qt">Kudy vede nultý poledník (0°)?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c5" value="0" data-k="c5"><span>Prahou</span></label><label class="opt"><input type="radio" name="c5" value="1" data-k="c5"><span>Paříží</span></label><label class="opt"><input type="radio" name="c5" value="2" data-k="c5"><span>Londýnem – Greenwichem</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c6">
+  <p class="qt">Rovník rozděluje Zemi na…</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c6" value="0" data-k="c6"><span>severní a jižní polokouli</span></label><label class="opt"><input type="radio" name="c6" value="1" data-k="c6"><span>východní a západní polokouli</span></label><label class="opt"><input type="radio" name="c6" value="2" data-k="c6"><span>Evropu a Afriku</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c7">
+  <p class="qt">Nultý poledník rozděluje Zemi na…</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c7" value="0" data-k="c7"><span>severní a jižní polokouli</span></label><label class="opt"><input type="radio" name="c7" value="1" data-k="c7"><span>západní a východní polokouli</span></label><label class="opt"><input type="radio" name="c7" value="2" data-k="c7"><span>den a noc</span></label></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <h2 class="part">Časová pásma</h2>
+  <ol class="qs">
+<li class="q" data-q="c8">
+  <p class="qt">Kolik je na Zemi časových pásem?</p>
+  <label class="ans"><input class="num" id="c8" data-k="c8" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="odpověď" style="width:2.6em"> pásem</label>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c9">
+  <p class="qt">Kolik stupňů má jedno časové pásmo?</p>
+  <label class="ans"><input class="num" id="c9" data-k="c9" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="odpověď" style="width:2.6em"> °</label>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c10">
+  <p class="qt">Kterým směrem od Greenwiche čas přibývá?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c10" value="0" data-k="c10"><span>na východ</span></label><label class="opt"><input type="radio" name="c10" value="1" data-k="c10"><span>na západ</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="c11">
+  <p class="qt">Jak se jmenuje čára, kde se mění datum?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="c11" value="0" data-k="c11"><span>nultý poledník</span></label><label class="opt"><input type="radio" name="c11" value="1" data-k="c11"><span>rovník</span></label><label class="opt"><input type="radio" name="c11" value="2" data-k="c11"><span>datová hranice</span></label></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <div class="bar"><button class="btn chk">Zkontrolovat</button><button class="btn ghost rst">Začít znovu</button></div>
+  <div class="result" hidden></div>
+</section>
+
+<section id="sour" class="part-sec" hidden>
+  <h2 class="part">Souřadnice</h2>
+  <ol class="qs">
+<li class="q" data-q="s1">
+  <p class="qt">Co znamená zkratka?</p>
+  <div class="grid"><div class="grow"><span class="gl"><b>s. š.</b></span><span class="gs"><select id="s1a" data-k="s1a" aria-label="s. š."><option value="">vyber…</option><option value="severní šířka">severní šířka</option><option value="jižní šířka">jižní šířka</option><option value="východní délka">východní délka</option><option value="západní délka">západní délka</option></select></span></div><div class="grow"><span class="gl"><b>j. š.</b></span><span class="gs"><select id="s1b" data-k="s1b" aria-label="j. š."><option value="">vyber…</option><option value="severní šířka">severní šířka</option><option value="jižní šířka">jižní šířka</option><option value="východní délka">východní délka</option><option value="západní délka">západní délka</option></select></span></div><div class="grow"><span class="gl"><b>v. d.</b></span><span class="gs"><select id="s1c" data-k="s1c" aria-label="v. d."><option value="">vyber…</option><option value="severní šířka">severní šířka</option><option value="jižní šířka">jižní šířka</option><option value="východní délka">východní délka</option><option value="západní délka">západní délka</option></select></span></div><div class="grow"><span class="gl"><b>z. d.</b></span><span class="gs"><select id="s1d" data-k="s1d" aria-label="z. d."><option value="">vyber…</option><option value="severní šířka">severní šířka</option><option value="jižní šířka">jižní šířka</option><option value="východní délka">východní délka</option><option value="západní délka">západní délka</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="s2">
+  <p class="qt">Místo se <b>severní šířkou</b> leží…</p>
+  <div class="opts"><label class="opt"><input type="radio" name="s2" value="0" data-k="s2"><span>nad rovníkem, na severní polokouli</span></label><label class="opt"><input type="radio" name="s2" value="1" data-k="s2"><span>pod rovníkem, na jižní polokouli</span></label><label class="opt"><input type="radio" name="s2" value="2" data-k="s2"><span>přímo na nultém poledníku</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="s3">
+  <p class="qt">Místo s <b>východní délkou</b> leží…</p>
+  <div class="opts"><label class="opt"><input type="radio" name="s3" value="0" data-k="s3"><span>vlevo od nultého poledníku, na západní polokouli</span></label><label class="opt"><input type="radio" name="s3" value="1" data-k="s3"><span>vpravo od nultého poledníku, na východní polokouli</span></label><label class="opt"><input type="radio" name="s3" value="2" data-k="s3"><span>přímo na rovníku</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="s4">
+  <p class="qt">Kolik stupňů šířky má místo, které leží přesně na rovníku?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="s4" value="0" data-k="s4"><span>0°</span></label><label class="opt"><input type="radio" name="s4" value="1" data-k="s4"><span>90°</span></label><label class="opt"><input type="radio" name="s4" value="2" data-k="s4"><span>15°</span></label></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <h2 class="part">Co to je a kde to je?</h2>
+  <p class="hint">Místa z tabulky v sešitu.</p>
+  <ol class="qs">
+<li class="q" data-q="t1">
+  <p class="qt"><b>Antofagasta</b></p>
+  <div class="grid"><div class="grow"><span class="gl">Co to je?</span><span class="gs"><select id="t1a" data-k="t1a" aria-label="Antofagasta – co to je"><option value="">vyber…</option><option value="město">město</option><option value="hora">hora</option><option value="ostrov">ostrov</option></select></span></div><div class="grow"><span class="gl">Ve kterém státě?</span><span class="gs"><select id="t1b" data-k="t1b" aria-label="Antofagasta – stát"><option value="">vyber…</option><option value="Chile">Chile</option><option value="Keňa">Keňa</option><option value="Norsko">Norsko</option><option value="Portugalsko">Portugalsko</option><option value="Tanzanie">Tanzanie</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="t2">
+  <p class="qt"><b>Hammerfest</b></p>
+  <div class="grid"><div class="grow"><span class="gl">Co to je?</span><span class="gs"><select id="t2a" data-k="t2a" aria-label="Hammerfest – co to je"><option value="">vyber…</option><option value="město">město</option><option value="hora">hora</option><option value="ostrov">ostrov</option></select></span></div><div class="grow"><span class="gl">Ve kterém státě?</span><span class="gs"><select id="t2b" data-k="t2b" aria-label="Hammerfest – stát"><option value="">vyber…</option><option value="Chile">Chile</option><option value="Keňa">Keňa</option><option value="Norsko">Norsko</option><option value="Portugalsko">Portugalsko</option><option value="Tanzanie">Tanzanie</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="t3">
+  <p class="qt"><b>Kilimandžáro</b></p>
+  <div class="grid"><div class="grow"><span class="gl">Co to je?</span><span class="gs"><select id="t3a" data-k="t3a" aria-label="Kilimandžáro – co to je"><option value="">vyber…</option><option value="město">město</option><option value="hora">hora</option><option value="ostrov">ostrov</option></select></span></div><div class="grow"><span class="gl">Ve kterém státě?</span><span class="gs"><select id="t3b" data-k="t3b" aria-label="Kilimandžáro – stát"><option value="">vyber…</option><option value="Chile">Chile</option><option value="Keňa">Keňa</option><option value="Norsko">Norsko</option><option value="Portugalsko">Portugalsko</option><option value="Tanzanie">Tanzanie</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="t4">
+  <p class="qt"><b>Madeira</b></p>
+  <div class="grid"><div class="grow"><span class="gl">Co to je?</span><span class="gs"><select id="t4a" data-k="t4a" aria-label="Madeira – co to je"><option value="">vyber…</option><option value="město">město</option><option value="hora">hora</option><option value="ostrov">ostrov</option></select></span></div><div class="grow"><span class="gl">Ve kterém státě?</span><span class="gs"><select id="t4b" data-k="t4b" aria-label="Madeira – stát"><option value="">vyber…</option><option value="Chile">Chile</option><option value="Keňa">Keňa</option><option value="Norsko">Norsko</option><option value="Portugalsko">Portugalsko</option><option value="Tanzanie">Tanzanie</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <h2 class="part">Na které polokouli to je?</h2>
+  <p class="hint">Podle zkratek urči polokouli. Čísla se nemusíš učit.</p>
+  <ol class="qs">
+<li class="q" data-q="h1">
+  <p class="qt"><b>Antofagasta</b> <span class="yr">24° j. š., 70° z. d.</span></p>
+  <div class="grid"><div class="grow"><span class="gl">polokoule</span><span class="gs"><select id="h1a" data-k="h1a" aria-label="Antofagasta – sever nebo jih"><option value="">vyber…</option><option value="severní">severní</option><option value="jižní">jižní</option></select><select id="h1b" data-k="h1b" aria-label="Antofagasta – východ nebo západ"><option value="">vyber…</option><option value="východní">východní</option><option value="západní">západní</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="h2">
+  <p class="qt"><b>Hammerfest</b> <span class="yr">71° s. š., 24° v. d.</span></p>
+  <div class="grid"><div class="grow"><span class="gl">polokoule</span><span class="gs"><select id="h2a" data-k="h2a" aria-label="Hammerfest – sever nebo jih"><option value="">vyber…</option><option value="severní">severní</option><option value="jižní">jižní</option></select><select id="h2b" data-k="h2b" aria-label="Hammerfest – východ nebo západ"><option value="">vyber…</option><option value="východní">východní</option><option value="západní">západní</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="h3">
+  <p class="qt"><b>Kilimandžáro</b> <span class="yr">3° j. š., 37° v. d.</span></p>
+  <div class="grid"><div class="grow"><span class="gl">polokoule</span><span class="gs"><select id="h3a" data-k="h3a" aria-label="Kilimandžáro – sever nebo jih"><option value="">vyber…</option><option value="severní">severní</option><option value="jižní">jižní</option></select><select id="h3b" data-k="h3b" aria-label="Kilimandžáro – východ nebo západ"><option value="">vyber…</option><option value="východní">východní</option><option value="západní">západní</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="h4">
+  <p class="qt"><b>Madeira</b> <span class="yr">33° s. š., 17° z. d.</span></p>
+  <div class="grid"><div class="grow"><span class="gl">polokoule</span><span class="gs"><select id="h4a" data-k="h4a" aria-label="Madeira – sever nebo jih"><option value="">vyber…</option><option value="severní">severní</option><option value="jižní">jižní</option></select><select id="h4b" data-k="h4b" aria-label="Madeira – východ nebo západ"><option value="">vyber…</option><option value="východní">východní</option><option value="západní">západní</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="h5">
+  <p class="qt"><b>Kuala Lumpur</b> <span class="yr">3° s. š., 102° v. d.</span></p>
+  <div class="grid"><div class="grow"><span class="gl">polokoule</span><span class="gs"><select id="h5a" data-k="h5a" aria-label="Kuala Lumpur – sever nebo jih"><option value="">vyber…</option><option value="severní">severní</option><option value="jižní">jižní</option></select><select id="h5b" data-k="h5b" aria-label="Kuala Lumpur – východ nebo západ"><option value="">vyber…</option><option value="východní">východní</option><option value="západní">západní</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="h6">
+  <p class="qt"><b>Teherán</b> <span class="yr">36° s. š., 51° v. d.</span></p>
+  <div class="grid"><div class="grow"><span class="gl">polokoule</span><span class="gs"><select id="h6a" data-k="h6a" aria-label="Teherán – sever nebo jih"><option value="">vyber…</option><option value="severní">severní</option><option value="jižní">jižní</option></select><select id="h6b" data-k="h6b" aria-label="Teherán – východ nebo západ"><option value="">vyber…</option><option value="východní">východní</option><option value="západní">západní</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <div class="bar"><button class="btn chk">Zkontrolovat</button><button class="btn ghost rst">Začít znovu</button></div>
+  <div class="result" hidden></div>
+</section>
+
+<section id="mapa" class="part-sec" hidden>
+  <h2 class="part">Mapa a atlas</h2>
+  <ol class="qs">
+<li class="q" data-q="m1">
+  <p class="qt">Co je mapa?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="m1" value="0" data-k="m1"><span>fotka Země z vesmíru</span></label><label class="opt"><input type="radio" name="m1" value="1" data-k="m1"><span>zobrazení povrchu Země na rovinu</span></label><label class="opt"><input type="radio" name="m1" value="2" data-k="m1"><span>zmenšená koule</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="m2">
+  <p class="qt">Proč mapa nemůže být úplně přesná?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="m2" value="0" data-k="m2"><span>Země je koule a mapa je rovná — něco se vždycky zkreslí</span></label><label class="opt"><input type="radio" name="m2" value="1" data-k="m2"><span>protože ji někdo kreslí ručně</span></label><label class="opt"><input type="radio" name="m2" value="2" data-k="m2"><span>protože se hory pořád hýbou</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="m3">
+  <p class="qt">Co najdeš v legendě mapy?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="m3" value="0" data-k="m3"><span>seznam všech ulic</span></label><label class="opt"><input type="radio" name="m3" value="1" data-k="m3"><span>vysvětlení značek a barev</span></label><label class="opt"><input type="radio" name="m3" value="2" data-k="m3"><span>příběh o tom, kdo mapu nakreslil</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="m4">
+  <p class="qt">Měřítko <span class="yr">1 : 250 000</span>. 1 cm na mapě je ve skutečnosti…</p>
+  <label class="ans"><input class="num" id="m4" data-k="m4" type="text" inputmode="numeric" maxlength="9" autocomplete="off" aria-label="odpověď" style="width:5.4em"> cm</label>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="m5">
+  <p class="qt">Co je piktogram?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="m5" value="0" data-k="m5"><span>čára na glóbu</span></label><label class="opt"><input type="radio" name="m5" value="1" data-k="m5"><span>druh měřítka</span></label><label class="opt"><input type="radio" name="m5" value="2" data-k="m5"><span>obrázek nebo značka</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="m6">
+  <p class="qt">Pro koho je automapa?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="m6" value="0" data-k="m6"><span>pro řidiče</span></label><label class="opt"><input type="radio" name="m6" value="1" data-k="m6"><span>pro turisty</span></label><label class="opt"><input type="radio" name="m6" value="2" data-k="m6"><span>pro námořníky</span></label></div>
+  <div class="why" hidden></div>
+</li>
+<li class="q" data-q="m7">
+  <p class="qt">Kterou mapu si vezmeš na výlet pěšky?</p>
+  <div class="opts"><label class="opt"><input type="radio" name="m7" value="0" data-k="m7"><span>automapu</span></label><label class="opt"><input type="radio" name="m7" value="1" data-k="m7"><span>turistickou mapu</span></label><label class="opt"><input type="radio" name="m7" value="2" data-k="m7"><span>mapu vesmíru</span></label></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <h2 class="part">Mapové značky</h2>
+  <ol class="qs">
+<li class="q" data-q="m8">
+  <p class="qt">Co znamená tahle značka?</p>
+  <div class="grid"><div class="grow"><span class="gl"><span class="symw"><b>A</b><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><rect width="64" height="64" rx="8" fill="#FBF8EF"/><path d="M32 14 L52 50 H12 Z" fill="#D0202A"/></svg></span></span><span class="gs"><select id="m8a" data-k="m8a" aria-label="značka A"><option value="">vyber…</option><option value="tunel">tunel</option><option value="jeskyně">jeskyně</option><option value="vyhaslá sopka">vyhaslá sopka</option><option value="nevyhaslá sopka">nevyhaslá sopka</option></select></span></div><div class="grow"><span class="gl"><span class="symw"><b>B</b><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><rect width="64" height="64" rx="8" fill="#FBF8EF"/><path d="M8 46 H56" stroke="#222" stroke-width="3" fill="none"/><path d="M16 46 A16 16 0 0 1 48 46" stroke="#222" stroke-width="3" fill="none"/></svg></span></span><span class="gs"><select id="m8b" data-k="m8b" aria-label="značka B"><option value="">vyber…</option><option value="tunel">tunel</option><option value="jeskyně">jeskyně</option><option value="vyhaslá sopka">vyhaslá sopka</option><option value="nevyhaslá sopka">nevyhaslá sopka</option></select></span></div><div class="grow"><span class="gl"><span class="symw"><b>C</b><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><rect width="64" height="64" rx="8" fill="#FBF8EF"/><path d="M32 14 L52 50 H12 Z" fill="#222"/></svg></span></span><span class="gs"><select id="m8c" data-k="m8c" aria-label="značka C"><option value="">vyber…</option><option value="tunel">tunel</option><option value="jeskyně">jeskyně</option><option value="vyhaslá sopka">vyhaslá sopka</option><option value="nevyhaslá sopka">nevyhaslá sopka</option></select></span></div><div class="grow"><span class="gl"><span class="symw"><b>D</b><svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><rect width="64" height="64" rx="8" fill="#FBF8EF"/><path d="M14 48 A18 18 0 0 1 50 48" stroke="#222" stroke-width="3" fill="none"/><path d="M22 46 L27 36 L32 44 L37 34 L42 46" stroke="#222" stroke-width="2.5" fill="none"/></svg></span></span><span class="gs"><select id="m8d" data-k="m8d" aria-label="značka D"><option value="">vyber…</option><option value="tunel">tunel</option><option value="jeskyně">jeskyně</option><option value="vyhaslá sopka">vyhaslá sopka</option><option value="nevyhaslá sopka">nevyhaslá sopka</option></select></span></div></div>
+  <div class="why" hidden></div>
+</li>
+  </ol>
+  <div class="bar"><button class="btn chk">Zkontrolovat</button><button class="btn ghost rst">Začít znovu</button></div>
+  <div class="result" hidden></div>
+</section>
+
+<section id="tah" hidden>
+  <div class="card warn">
+    <h3>Pozor — tohle máš v sešitu špatně</h3>
+    <ul>
+      <li><b>Přestupné roky:</b> 2052 přestupný <b>je</b> (jde dělit 4). 3000 přestupný <b>není</b> (končí na 00 a nejde dělit 400).</li>
+      <li><b>Kilimandžáro</b> je v <b>Tanzanii</b>, ne v Keni. Leží kousek od hranice.</li>
+      <li><b>Antofagasta</b> je město v <b>Chile</b>. Norsko a 73° s. š. / 23° v. d. patří k <b>Hammerfestu</b> — správně asi 71° s. š., 24° v. d.</li>
+      <li><b>Madeira:</b> asi 33° s. š., 17° z. d. (v sešitu 30° a 15°).</li>
+      <li><b>Kuala Lumpur:</b> 3° <b>severní šířky</b>, 102° <b>východní délky</b> (v sešitu jižní a západní).</li>
+      <li><b>Teherán:</b> 36° <b>severní šířky</b>, 51° <b>východní délky</b> (v sešitu „výšky“ a „šířky“ přehozené).</li>
+      <li><b>Vídeň:</b> 48° s. š. (v sešitu 50°). <b>Athény:</b> u délky má být <b>v. d.</b>, ne „s. d.“. „z. š.“ v sešitu znamená zeměpisná šířka.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Vesmír a Země</h3>
+    <ul>
+      <li><b>Galaxie</b> = soustava hvězd. Naše galaxie je <b>Mléčná dráha</b>.</li>
+      <li>Země oběhne Slunce za <b>365 ¼ dne</b> (1 rok). Kolem své osy se otočí za <b>24 hodin</b>.</li>
+      <li>Osa prochází <b>severním a jižním pólem</b>.</li>
+      <li><b>Přestupný rok:</b> ¼ dne = 6 hodin, za 4 roky = 1 den navíc → únor má <b>29 dní</b>. Přestupný je rok, který jde dělit 4. <span class="ex">2036, 2048, 2052</span></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Čáry na Zemi</h3>
+    <ul>
+      <li><b>Poledník</b> = myšlená čára od severního k jižnímu pólu. <b>Nultý poledník (0°)</b> vede Londýnem — Greenwich.</li>
+      <li><b>Rovník (ekvátor)</b> = 0°, uprostřed mezi póly.</li>
+      <li>Od severu: <b>polární kruh → obratník → rovník → obratník → polární kruh jižní</b>.</li>
+      <li>Rovník dělí Zemi na <b>severní a jižní</b> polokouli, nultý poledník na <b>západní a východní</b>.</li>
+      <li><b>24 časových pásem</b>, každé má <b>15°</b>. Na východ čas <b>přibývá</b>, na západ <b>ubývá</b>. Datum se mění na <b>datové hranici</b>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Souřadnice</h3>
+    <ul>
+      <li><b>s. š.</b> severní šířka, <b>j. š.</b> jižní šířka — od rovníku nahoru a dolů.</li>
+      <li><b>v. d.</b> východní délka, <b>z. d.</b> západní délka — od nultého poledníku doprava a doleva.</li>
+      <li>Ze zkratek poznáš polokouli: <span class="ex">36° s. š., 51° v. d. → severní a východní</span></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Mapa</h3>
+    <ul>
+      <li>Mapa = zobrazení povrchu Země <b>na rovinu</b>. Je jen <b>přibližná</b> — kouli nejde rozložit bez zkreslení.</li>
+      <li>Každá mapa má <b>legendu</b> = vysvětlivky značek a barev.</li>
+      <li><b>Měřítko</b> <span class="ex">1 : 250 000 → 1 cm na mapě = 250 000 cm ve skutečnosti</span></li>
+      <li><b>Piktogram</b> = obrázek, značka.</li>
+      <li><b>Automapa</b> pro řidiče (cesty, silnice, dálnice). <b>Turistická mapa</b> pro turisty (památky, turistické značky — dělá je <b>KČT</b>).</li>
+      <li>Sopka = trojúhelník: <b>černý vyhaslá</b>, <b>červený nevyhaslá</b>.</li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+try{ document.getElementById("mobil").hidden = true; }catch(e){}
+/* Odpovedi a vysvetleni jsou zamlzene (XOR + base64), aby neslo nakouknout do zdroje.
+   Neni to zabezpeceni - klic lezi ve stejnem souboru. */
+var KEY = "viky-z-2026";
+var P = "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";
+var D = null;
+try{
+  var raw = atob(P), s = "", i;
+  for(i = 0; i < raw.length; i++){ s += String.fromCharCode(raw.charCodeAt(i) ^ KEY.charCodeAt(i % KEY.length)); }
+  D = JSON.parse(decodeURIComponent(escape(s)));
+}catch(e){ D = null; }
+
+var $ = function(id){ return document.getElementById(id); };
+var each = function(list, fn){ Array.prototype.forEach.call(list, fn); };
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+var SKEY = "viky-z-souradnice-mapa-01";
+function saveAll(){
+  var st = {};
+  each(document.querySelectorAll("[data-k]"), function(el){
+    if(el.type === "radio"){ if(el.checked) st[el.name] = el.value; }
+    else st[el.id] = el.value;
+  });
+  try{ localStorage.setItem(SKEY, JSON.stringify(st)); }catch(e){}
+}
+(function restore(){
+  var st = null;
+  try{ var r = localStorage.getItem(SKEY); st = r ? JSON.parse(r) : null; }catch(e){ st = null; }
+  if(!st) return;
+  each(document.querySelectorAll("[data-k]"), function(el){
+    if(el.type === "radio"){ if(st[el.name] === el.value) el.checked = true; }
+    else if(st[el.id] != null) el.value = st[el.id];
+  });
+})();
+
+/* zalozky */
+var TABS = [["t-zeme","zeme"],["t-cary","cary"],["t-sour","sour"],["t-mapa","mapa"],["t-tah","tah"]];
+TABS.forEach(function(p){
+  $(p[0]).addEventListener("click", function(){
+    TABS.forEach(function(q){
+      var on = q[0] === p[0];
+      $(q[0]).setAttribute("aria-selected", on ? "true" : "false");
+      $(q[1]).hidden = !on;
+    });
+    window.scrollTo(0, 0);
+  });
+});
+
+function clearMarks(li){
+  li.classList.remove("ok","bad");
+  each(li.querySelectorAll(".good,.wrong"), function(x){ x.classList.remove("good","wrong"); });
+  var w = li.querySelector(".why"); w.hidden = true; w.innerHTML = "";
+}
+function norm(v){ return String(v || "").replace(/[\s. °]/g, "").toLowerCase(); }
+
+function checkLi(li){
+  clearMarks(li);
+  var qid = li.getAttribute("data-q");
+  var ok = true, answered = false;
+  var radios = li.querySelectorAll("input[type=radio]");
+  if(radios.length){
+    var right = D.a[qid];
+    each(radios, function(r){
+      var lab = r.parentNode;
+      if(r.checked){ answered = true; if(r.value === right) lab.classList.add("good"); else { lab.classList.add("wrong"); ok = false; } }
+    });
+    if(!answered) ok = false;
+  } else {
+    each(li.querySelectorAll("[data-k]"), function(el){
+      var v = norm(el.value);
+      if(v) answered = true;
+      if(v === norm(D.a[el.id])) el.classList.add("good"); else { el.classList.add("wrong"); ok = false; }
+    });
+  }
+  li.classList.add(ok ? "ok" : "bad");
+  if(!ok){
+    var w = li.querySelector(".why");
+    w.innerHTML = (answered ? "" : "<b>Nevyplněno.</b> ") + esc(D.w[qid] || "");
+    w.hidden = false;
+  }
+  return ok;
+}
+
+each(document.querySelectorAll(".part-sec"), function(sec){
+  var box = sec.querySelector(".result");
+  sec.addEventListener("input", function(e){
+    saveAll();
+    var li = e.target.closest ? e.target.closest("li.q") : null;
+    if(li) clearMarks(li);
+  });
+  sec.addEventListener("change", function(e){
+    saveAll();
+    var li = e.target.closest ? e.target.closest("li.q") : null;
+    if(li) clearMarks(li);
+  });
+  sec.querySelector(".chk").addEventListener("click", function(){
+    box.hidden = false;
+    if(!D){ box.innerHTML = "<h2>Soubor se nenačetl celý</h2><p>Zavři stránku a otevři ji znovu. Kdyby to nepomohlo, řekni to tátovi.</p>"; return; }
+    var all = true;
+    each(sec.querySelectorAll("li.q"), function(li){ if(!checkLi(li)) all = false; });
+    box.innerHTML = all
+      ? "<h2>Všechno sedí</h2><p>Tuhle část umíš. Zkus další záložku.</p>"
+      : "<h2>Něco ještě nesedí</h2><p>U červených otázek je vysvětlení. Přečti si ho a zkus to znovu.</p>";
+  });
+  sec.querySelector(".rst").addEventListener("click", function(){
+    each(sec.querySelectorAll("li.q"), clearMarks);
+    each(sec.querySelectorAll("[data-k]"), function(el){ if(el.type === "radio") el.checked = false; else el.value = ""; });
+    box.hidden = true;
+    saveAll();
+    window.scrollTo(0, 0);
+  });
+});
+})();
+
+</script>
+</body>
+</html>
