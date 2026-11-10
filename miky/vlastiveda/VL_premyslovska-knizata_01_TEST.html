@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test: Přemyslovská knížata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+
+/* Stejna stavba jako trenazery PRV; vlastiveda ma cihlove hnedou. */
+:root{
+  --ground:#F7F3EE;--surface:#FFFFFF;--sunk:#EFE8DF;--line:#DDD2C4;
+  --text:#221C16;--muted:#6B5E50;--ink:#8A4B22;--on-ink:#FFFFFF;--ink-soft:#F3E3D6;
+  --ok:#17703F;--ok-soft:#E1F2E7;--err:#B32B36;--err-soft:#FBE6E7;
+  --shadow:0 1px 2px rgba(34,28,22,.06),0 6px 18px rgba(34,28,22,.05);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#16120F;--surface:#1F1A16;--sunk:#2A231E;--line:#3D342C;
+    --text:#EDE4DA;--muted:#A89A8A;--ink:#E0A272;--on-ink:#16120F;--ink-soft:#3A2A1E;
+    --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#16120F;--surface:#1F1A16;--sunk:#2A231E;--line:#3D342C;
+  --text:#EDE4DA;--muted:#A89A8A;--ink:#E0A272;--on-ink:#16120F;--ink-soft:#3A2A1E;
+  --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding-block:30px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+.eyebrow{margin:0;font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+h1{margin:6px 0 0;font-family:var(--serif);font-size:clamp(28px,7vw,40px);font-weight:600;line-height:1.1;text-wrap:balance}
+.lede{margin:10px 0 0;color:var(--muted)}
+.modes{display:flex;gap:4px;margin-top:18px;padding:4px;background:var(--sunk);border-radius:11px;border:1px solid var(--line)}
+.modes a{text-align:center;text-decoration:none;flex:1;color:var(--muted);font:600 14px var(--sans);padding:9px 4px;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.modes a[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.modes a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h2.part{margin:8px 0 0;font-family:var(--serif);font-size:22px;font-weight:600}
+.hint{margin:4px 0 0;font-size:15px;color:var(--muted)}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+ol.qs>li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 44px;position:relative;box-shadow:var(--shadow);min-width:0}
+ol.qs>li::before{content:attr(data-n);position:absolute;left:16px;top:15px;font-size:13px;font-weight:700;color:var(--muted)}
+ol.qs>li.ok{border-color:var(--ok)}
+ol.qs>li.bad{border-color:var(--err)}
+.qt{margin:0 0 8px;font-weight:600}
+.cloze{margin:0;line-height:2.3}
+select{font:16px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+select:focus{outline:2px solid var(--ink);outline-offset:1px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.opt input{margin:4px 0 0;accent-color:var(--ink)}
+.opt:has(input:checked){background:var(--ink-soft);border-color:var(--ink)}
+.good{color:var(--ok)!important;border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.wrong{color:var(--err)!important;border-color:var(--err)!important;background:var(--err-soft)!important}
+.why{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--err-soft);color:var(--text);font-size:15px}
+.why b{color:var(--err)}
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:12px 18px;font:700 16px var(--sans);cursor:pointer;background:var(--ink);color:var(--on-ink)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.result h2{margin:0 0 4px;font-size:18px}
+.result p{margin:0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin:0 0 6px;font-family:var(--serif);font-size:19px}
+.card p,.card ul{margin:6px 0}
+.card ul{padding-left:20px}
+section{display:flex;flex-direction:column;gap:14px}
+input.txt{font:17px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:5px 10px;max-width:100%}
+input.txt.short{width:8.5em}
+input.txt:focus{outline:2px solid var(--ink);outline-offset:1px}
+.grow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:5px 0;border-top:1px solid var(--line)}
+.grow:first-of-type{border-top:0}
+.grow .gl{flex:1 1 12em}
+footer{font-size:13px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+@media print{.bar,.modes,#mobil{display:none!important} body{background:#fff} ol.qs>li{box-shadow:none;break-inside:avoid}}
+
+.txt{width:100%}
+.grow .txt{flex:2 1 12em}
+.yn{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 0;border-top:1px solid var(--line)}
+.yn:first-of-type{border-top:0}
+.yn .gl{flex:1 1 14em}
+.yn .opt{padding:5px 12px}
+.unlock,.potvrd{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.unlock h2{margin:0;font-family:var(--serif);font-size:19px;font-weight:600}
+.unlock p,.potvrd p{margin:0;font-size:15px;color:var(--muted)}
+.unlock .row,.potvrd .row{display:flex;gap:8px;flex-wrap:wrap}
+.unlock input{flex:1;min-width:140px;font:600 18px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--sunk);color:var(--text)}
+.unlock .err{color:var(--err);font-weight:600}
+.potvrd{background:var(--err-soft);border-color:var(--err)}
+.potvrd p{color:var(--text)}
+.sol{margin-top:8px;padding:9px 12px;border-radius:9px;background:var(--sunk);font-size:15px;display:flex;flex-direction:column;gap:3px}
+.sol p{margin:0}
+.sol .sp{color:var(--ok);font-weight:700}
+textarea{width:100%;min-height:12em;font:14px ui-monospace,Menlo,monospace;color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:10px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="mobil" style="background:var(--ink);color:var(--on-ink);border-radius:12px;padding:14px 16px;font-weight:600">
+  <a href="https://liborkorynta-lang.github.io/skola/miky/vlastiveda/VL_premyslovska-knizata_01_TEST.html" style="color:var(--on-ink);text-decoration:underline">Pro otevření na iPhonu klikni sem</a>
+</div>
+<header>
+  <p class="eyebrow">Vlastivěda · test</p>
+  <h1>Přemyslovská knížata</h1>
+  <p class="lede">Odpověz na všechno, co víš. <b>Test se sám neopravuje.</b> Až budeš hotový, zkopíruj odpovědi
+    a pošli je tátovi. On ti pošle kód a řešení si odemkneš dole na téhle stránce.</p>
+</header>
+<section>
+  <ol class="qs" id="qs"><li class="q" data-n="1"><p class="qt">Jak se jmenoval kmen, který se usadil u řeky Vltavy?</p><div class="grow" data-m="1"><input class="txt" id="f1" data-m="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 1"></div></li><li class="q" data-n="2"><p class="qt">Kdy vznikl český stát?</p><div class="grow" data-m="2"><input class="txt" id="f2" data-m="2" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 2"></div></li><li class="q" data-n="3"><p class="qt">Je to pravda? U každé věty vyber Ano, nebo Ne.</p><div class="yn" data-m="3a"><span class="gl">Václav byl vzdělaný a uměl číst a psát.</span><label class="opt"><input type="radio" name="f3a" value="Ano" data-m="3a"><span>Ano</span></label><label class="opt"><input type="radio" name="f3a" value="Ne" data-m="3a"><span>Ne</span></label></div><div class="yn" data-m="3b"><span class="gl">Václav byl prohlášen za svatého.</span><label class="opt"><input type="radio" name="f3b" value="Ano" data-m="3b"><span>Ano</span></label><label class="opt"><input type="radio" name="f3b" value="Ne" data-m="3b"><span>Ne</span></label></div><div class="yn" data-m="3c"><span class="gl">Boleslav vládl jen pár měsíců.</span><label class="opt"><input type="radio" name="f3c" value="Ano" data-m="3c"><span>Ano</span></label><label class="opt"><input type="radio" name="f3c" value="Ne" data-m="3c"><span>Ne</span></label></div><div class="yn" data-m="3d"><span class="gl">Prostí lidé nosili oblečení z drahocenných látek.</span><label class="opt"><input type="radio" name="f3d" value="Ano" data-m="3d"><span>Ano</span></label><label class="opt"><input type="radio" name="f3d" value="Ne" data-m="3d"><span>Ne</span></label></div><div class="yn" data-m="3e"><span class="gl">Bohatí lidé žili v hradištích.</span><label class="opt"><input type="radio" name="f3e" value="Ano" data-m="3e"><span>Ano</span></label><label class="opt"><input type="radio" name="f3e" value="Ne" data-m="3e"><span>Ne</span></label></div><div class="yn" data-m="3f"><span class="gl">Románské stavby se stavěly hlavně pro obchodníky.</span><label class="opt"><input type="radio" name="f3f" value="Ano" data-m="3f"><span>Ano</span></label><label class="opt"><input type="radio" name="f3f" value="Ne" data-m="3f"><span>Ne</span></label></div><div class="yn" data-m="3g"><span class="gl">Kronika o historii našich zemí je psaná česky.</span><label class="opt"><input type="radio" name="f3g" value="Ano" data-m="3g"><span>Ano</span></label><label class="opt"><input type="radio" name="f3g" value="Ne" data-m="3g"><span>Ne</span></label></div></li><li class="q" data-n="4"><p class="qt">Kdo to byl? Napiš jméno.</p><div class="grow" data-m="4a"><label class="gl" for="f4a">babička, která vychovávala Václava</label><input class="txt" id="f4a" data-m="4a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 4a"></div><div class="grow" data-m="4b"><label class="gl" for="f4b">matka, která za Václava zpočátku vládla</label><input class="txt" id="f4b" data-m="4b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 4b"></div><div class="grow" data-m="4c"><label class="gl" for="f4c">kníže, který přestěhoval sídlo do Prahy a šířil křesťanství</label><input class="txt" id="f4c" data-m="4c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 4c"></div><div class="grow" data-m="4d"><label class="gl" for="f4d">ten, kdo napsal první kroniku o historii našich zemí</label><input class="txt" id="f4d" data-m="4d" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 4d"></div></li><li class="q" data-n="5"><p class="qt">Co se stalo v roce 935?</p><div class="grow" data-m="5a"><label class="gl" for="f5a">co se stalo</label><input class="txt" id="f5a" data-m="5a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 5a"></div><div class="grow" data-m="5b"><label class="gl" for="f5b">kde</label><input class="txt" id="f5b" data-m="5b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 5b"></div></li><li class="q" data-n="6"><p class="qt">Rod Slavníkovců</p><div class="grow" data-m="6a"><label class="gl" for="f6a">Co se s rodem stalo roku 995?</label><input class="txt" id="f6a" data-m="6a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 6a"></div><div class="grow" data-m="6b"><label class="gl" for="f6b">Kdo z rodu přežil?</label><input class="txt" id="f6b" data-m="6b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 6b"></div><div class="grow" data-m="6c"><label class="gl" for="f6c">Proč přežil?</label><input class="txt" id="f6c" data-m="6c" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 6c"></div></li><li class="q" data-n="7"><p class="qt">Jak se jmenovaly stříbrné mince, které se začaly razit za knížete Boleslava?</p><div class="grow" data-m="7"><input class="txt" id="f7" data-m="7" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 7"></div></li><li class="q" data-n="8"><p class="qt">Obchod za knížat</p><div class="grow" data-m="8a"><label class="gl" for="f8a">Jak se jmenuje obchod, kdy lidé vymění jednu věc za jinou?</label><input class="txt" id="f8a" data-m="8a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 8a"></div><div class="grow" data-m="8b"><label class="gl" for="f8b">Jaké platidlo se postupně začalo používat?</label><input class="txt" id="f8b" data-m="8b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 8b"></div></li><li class="q" data-n="9"><p class="qt">Čím se lidé za knížat živili? Napiš dvě věci.</p><div class="grow" data-m="9a"><label class="gl" for="f9a">1.</label><input class="txt" id="f9a" data-m="9a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 9a"></div><div class="grow" data-m="9b"><label class="gl" for="f9b">2.</label><input class="txt" id="f9b" data-m="9b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 9b"></div></li><li class="q" data-n="10"><p class="qt">Kdo za knížat uměl číst a psát?</p><div class="grow" data-m="10"><input class="txt" id="f10" data-m="10" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 10"></div></li><li class="q" data-n="11"><p class="qt">Jak Václav zajišťoval bezpečnost země?</p><div class="grow" data-m="11"><input class="txt" id="f11" data-m="11" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 11"></div></li><li class="q" data-n="12"><p class="qt">Napiš dva znaky románské stavby.</p><div class="grow" data-m="12a"><label class="gl" for="f12a">1.</label><input class="txt" id="f12a" data-m="12a" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 12a"></div><div class="grow" data-m="12b"><label class="gl" for="f12b">2.</label><input class="txt" id="f12b" data-m="12b" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď 12b"></div></li></ol>
+  <div class="bar" id="bar">
+    <button class="btn" id="copy-all" type="button">Zkopírovat moje odpovědi</button>
+    <button class="btn ghost" id="vymazat" type="button">Vymazat a začít znovu</button>
+  </div>
+  <div class="potvrd" id="potvrd" hidden>
+    <p>Opravdu smazat všechny tvoje odpovědi? Vrátit to nepůjde.</p>
+    <div class="row">
+      <button class="btn" id="potvrd-ano" type="button">Ano, smazat</button>
+      <button class="btn ghost" id="potvrd-ne" type="button">Ne, nechat</button>
+    </div>
+  </div>
+  <div class="result" id="out" hidden></div>
+  <div class="unlock" id="unlock">
+    <h2>Řešení</h2>
+    <p>Až tátovi pošleš odpovědi, dostaneš od něj kód. Po zadání kódu se tvoje odpovědi zamknou
+    a u každé uvidíš, jak je to správně a proč. Pak už test nepůjde vymazat ani udělat znovu.</p>
+    <div class="row">
+      <input id="kod" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Kód od táty" placeholder="Kód od táty">
+      <button class="btn" id="odemknout" type="button">Odemknout řešení</button>
+    </div>
+    <p id="kod-msg" hidden></p>
+  </div>
+</section>
+<footer>Test nic nikam neodesílá. Odpovědi zkopíruj a pošli tátovi sám.</footer>
+</div>
+<script>
+(function(){
+"use strict";
+try{ document.getElementById("mobil").hidden = true; }catch(e){}
+var $ = function(id){ return document.getElementById(id); };
+var each = function(list, fn){ Array.prototype.forEach.call(list, fn); };
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+var ORDER = ["1", "2", "3a", "3b", "3c", "3d", "3e", "3f", "3g", "4a", "4b", "4c", "4d", "5a", "5b", "6a", "6b", "6c", "7", "8a", "8b", "9a", "9b", "10", "11", "12a", "12b"];
+var SKEY = "vl-premyslovska-knizata-01-test";
+var ODEMCENO = SKEY + "-odemceno";
+var zamceno = false;
+
+function getVal(m){
+  var t = $("f" + m);
+  if(t) return t.value.trim();
+  var r = document.querySelector('input[type=radio][data-m="' + m + '"]:checked');
+  return r ? r.value : "";
+}
+function save(){
+  if(zamceno) return;
+  var st = {};
+  ORDER.forEach(function(m){ st[m] = getVal(m); });
+  try{ localStorage.setItem(SKEY, JSON.stringify(st)); }catch(e){}
+}
+(function restore(){
+  var st = null;
+  try{ var r = localStorage.getItem(SKEY); st = r ? JSON.parse(r) : null; }catch(e){ st = null; }
+  if(!st) return;
+  ORDER.forEach(function(m){
+    var v = st[m]; if(!v) return;
+    var t = $("f" + m);
+    if(t){ t.value = v; return; }
+    each(document.querySelectorAll('input[type=radio][data-m="' + m + '"]'), function(r){ if(r.value === v) r.checked = true; });
+  });
+})();
+$("qs").addEventListener("input", save);
+$("qs").addEventListener("change", save);
+
+/* vypis odpovedi - bez hodnoceni */
+function vypis(){
+  return "Vlastivěda – test Přemyslovská knížata\n" + ORDER.map(function(m){
+    var v = getVal(m); return m + ": " + (v || "—");
+  }).join("\n");
+}
+$("copy-all").addEventListener("click", function(){
+  var txt = vypis(), out = $("out");
+  out.hidden = false;
+  out.innerHTML = "<h2>Tvoje odpovědi</h2><p>Pošli je tátovi. Kdyby se nezkopírovaly samy, označ text v poli a zkopíruj ho.</p><textarea id=\"vypis\" readonly></textarea>";
+  $("vypis").value = txt;
+  function fallback(){ var ta = $("vypis"); ta.focus(); ta.select(); }
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ $("copy-all").textContent = "Zkopírováno"; }, fallback);
+    } else fallback();
+  }catch(e){ fallback(); }
+});
+
+/* vymazat - jen pred odemcenim, potvrzeni ve strance */
+$("vymazat").addEventListener("click", function(){ if(!zamceno) $("potvrd").hidden = false; });
+$("potvrd-ne").addEventListener("click", function(){ $("potvrd").hidden = true; });
+$("potvrd-ano").addEventListener("click", function(){
+  if(zamceno) return;
+  each(document.querySelectorAll("#qs input.txt"), function(t){ t.value = ""; });
+  each(document.querySelectorAll("#qs input[type=radio]"), function(r){ r.checked = false; });
+  save();
+  $("out").hidden = true; $("out").innerHTML = "";
+  $("copy-all").textContent = "Zkopírovat moje odpovědi";
+  $("potvrd").hidden = true;
+  window.scrollTo(0, 0);
+});
+
+/* --- odemceni reseni kodem (sifra z _nastroje/test_s_kodem.py) --- */
+var S = "K2As4XiOfa7o96IQl9hwHuJ06fucxj82u3z9hFvyHVKHwsvDanOKsnPPZjFeZZhyE/EglicIeBWzYav0Nj9Hw2A37Ioj7K3tygmFVkGeBMi8cQeHRSbjg+AG9K+u1g/X03wrFDZAedvc+58XCplcA5AETq3SQ/l97sri527rybx+Y2fHiab/Lh5V+6cweWcmwyQ0TmPlLp6x+tYZ6IGwHXkHByvSDF2mAVyHDVMKL91O7aXFFs+TkVjTuRUSnAIHX97yG56OqqYLwqxJv73e496Md5bTOJBP54b4rdtKT6H3Ybx3FRENH3rhhZk4O3e/bVwf+IsXgTQ2M9PE35tbGcAAjy04CklGCBucH13wCzk5t/lEGMtd2Cv0wiegf8+VJcJETlXhEzD15KBGJqWFqsewwXnfrZn2i6PHCzO3mLfSy8++uX2HLu+6OOSgoTGGwh93Qpe323xmjHhm+bhA9tlDlHWsu4cjDVjkhHSuc79rKjgyprMJez41EFbluGN6z1Q236rQAs2B/FoktGicF11hj0WtNeDRAw8VDux5ArKvuc9DWRGKu/4SpbHiUE3YbumbHSru59KGPcIuAna55FDs4VXODt1AOlupyBGl7uia/A3koS4y5XZeSsM+j++8/TLuSG6EWozd2eVy9whJPkDNez1ujA7HrF86ThkARa1E74SDc09VEvmExw1i1ZfpoLbi1CX5jkGhrJi9lpUmhjP3CMAuKEfphVKTIRN4NnPqJipipdSyY2Fyk8gtiHJe4rfUYwZQAwBOcSEXIyxRBe1T8xQy+EMhGOpBVLAHnDciWMlwm/gvYiR+S46YTfEB6TrurDzm2WyFz4oaR4pMvooZaKfqhxtY3y5/4N451S3j7wo6yYFKfrRBIvzIlmM8yJbKyVfl6YQ5uIkaxGirrlqUmuKE6t4JmQn+NXBuNIVEt9XmJgxYy3uY8vQzLtI+2Pqax6n9JtFXYbDOH2uyw7AofeazD6H65mZgtYCQco7EH/qBEUrNTzkJDAk3oeMdgmPMFcn3pcIkQCh6oFSmW0KL9EW8melxuipl4kBBuRrf8WjTnDKxAEs4zKsVW4Fc/PGMEJpRw4Ln30ZrUJbywYUQ0sgjb/4qxFY0Fjtda2nL4a98+sUIMdY5Z26kXEJHCoswbSLKUAf1cK+XnKETB/DOJCIwbaF6BlbFYnb+Y2yEKdwYHmfaZ1MBwNFzpv2aUR4QSJ2ttsZp7cDIvcwBlAM4qEH68pssz+wNMBJFtOtH5LbIKvmwo0NguOcAQY73dA4BtyD6GJKPu3KpXCSHtahtGMnaHpc4/VVLFM/7rh4pOESM0jFsKF43sq8BZsdri0bulcKYZdK1LFmGXmmwP2+eG2cn8rS2kla2AD3BA9ivmV6OLT820D1DB36op7Q2XHbF82NFxWvz5UKBrlIHFOO2rLhQ7DUmPaUK9tdpbJl8I8Rx/fu6w4ierapX/8qOlGqXAv9pxBhdREveKnYVQDtw1B9GbmqhmYhGdorpylOHjfi7fvkD2F8l1wfu9MuFPuDyV5OKYbAWqcO/cyv0D+F2usTnm1myhkBD65i0mDUX9m9F/82niUs9EdwtgVwTim1dh+tXxWN7u3PK8DB7zrA0N5s7Hs+O5CndOkkknrGJFRCvFVBczDnTVTBMcFQCXCNkH1wuYIXzuU7x4BPrWh/A4pTBmgigibg5UL7nE2g/Sh/+8H2P5afDWi+5UaplOx5qsqb4vkeULhtrEoHZTFfWxgxqk3j09CfcHrANNWjAWsTAwNuI5nvhOs1vQJLqDXRNGYM5hD+8T82KCwYGNa9MRIFT/dUwatPX0xVmX+U/oA690W5persmKRKPm19l41N14qyhSJ329X3PJx7lc+MVcx6PlP/kes98FJKdwcYnTqLuGnjZn/DsqJr4PEnC3xEpd9o9enXuWcyO7+QjDLsC7wMTZZXkru1H4nzThSbZ6seAyVRNpzKvbXNPye/zevUfPX8+U6L/hizz/6/iLQ2OQMV3RwwHsl48fw6t4/ibqnNlHN+UboPP2zH44aVU09VV2ayAuVHu6C5FdBNIWJm1QWLSlkQZikh80l21TtNuN47ehhqgyUnLDXB8Wusth6H87BOHsWR1rTIAXvnGSYTHclRx2dDY3sF334J/Y9Ueu7sd0tGtBcKUUyv5udfNOELLy84Y46WKGp0QhyG8KMQmhBsUaF8uJ59o6f4HjI8G8cRJyQ7QV58olh0nN3Qrz4guvOVMRMy2TQEqFRydPg9TcIV9jDBl2pEg4MHmdlZ54MvUGNkNVGj2cz1HOIUFnMq2W4hdbAXh8gta4YGwynn+GKvKcr4ogz9hhER6bedx4/CkAwXChBofxQuio31g3elISlQLyTZ1NG2PrBorZktMpUftPheDvpubtd5TWzyzHOTOU5BMrDpatvQzZL0IgFHCyHWrBN3cdDWcv8YVk4E97J3ZYwOzqVmuPTtboUuJ3SRa1GG0WZwlQ0OdO1HizSkJ++lb31GehpV3xBUYbLB8zSswRt6Kfg9h2g34ozr0Sra3zBt1A7ocVSV6dsBM4rnYkPqYesa8YFXILh4/mkYoOFr903wM2hzbXFxbmMtk6J8KklNK6EpC1AbWacD+kx1kvdsjNDaZrnx1P2uLK5wF3/0jcPo9QV4siimtM30/9LtAIrrMvahWaKYzJvCk3soYqgJhjqlT0X+47c+BlQJrJC+Su8QTwWgDahYrgEIeZtI8/YzDRUR7e3LrGL5C50H1p9K68tUHfHD7XYdaTbiFbhKUf1b015SvMZuS8wgwco1Y0805PvPQfH2hfJODDWChh4aUoQsv4HiWrpXKtwBnEMfXJZjTie/WdEfY5PhcxuczYyJWJih5rf/TlQAggZu7Tjmoijg31Vo0QVB/J8CMv8jaBelG/hK/ERzrwxqmx+pcKMezgj5fMzoQ1ulaUy2YnGF65zJNVFcPbTZpH5rQT3aZFYvDsW50CPWeeVZ/hArSg5r4YRGL9nB4yAoiZonXOkOuIkKx6Z/wi5Nl3gQAWCf1EgODXY3Y41oH9O1PDGIKfn7jaUPS0b281rfxntkZ/Ee5zMfmoY7fbfEOBluWZjC+wJ72A/g/TR+VSB0m1rRVEM+MdpHz+huHtDMfMgbvtZ2T0JChaln6Tl9UCPod0h1h1iJuT6Ocn5566FmKGENBAZcIfVkTN82m3pGiJ2p1hsVj6fLKZaQCuIkEKpt2ojGg6TR7XJYe/kuI6HO7y0nraUajp4Ty9bRyeXxeS2YJSRw/X9NWS4zggMlUxCYjAn1aNiKQYONeC/WW7+qNgnxoFBiIkQqyiKUfzFWq8H0iDYkWy0ZeH3Ygvu2ehxt+WbF6ONg49wikMxvOqf6XWvR42LzMW9bze0QPlRK4ljDDaOxtN1KowJ0UZgdbgM7gY5gU/bpHkN0MfCEGr/ST5dLm7nWB1wFQgM0H71IPlysvp3FyzrXICM9QjHcbjo/q1XwSfVFXeHMjXSdo28GxCFgb1fYlBAZI/MR15O2i+Js/BvyAziekodIYLafUFxuOQCyE6rqpFpoNZCrxyttsrZX3hWnWSrTH9I6p8l0vaeowQQA79YhIM8CWhAinhvASuaC0XhP/1g==";
+function keystream(kod, n){
+  var h = 0x811C9DC5, s = "miky|" + kod, i;
+  for(i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  var x = h || 0x9E3779B9, out = [];
+  function step(){ x ^= (x << 13); x >>>= 0; x ^= (x >>> 17); x ^= (x << 5); x >>>= 0; }
+  for(i = 0; i < 20000; i++) step();
+  for(i = 0; i < n; i++){ step(); out.push(x & 0xFF); }
+  return out;
+}
+function desifruj(kod){
+  try{
+    var raw = atob(S), ks = keystream(kod, raw.length), s = "", i;
+    for(i = 0; i < raw.length; i++) s += String.fromCharCode(raw.charCodeAt(i) ^ ks[i]);
+    var o = JSON.parse(decodeURIComponent(escape(s)));
+    return (o && o.m === "miky-ok") ? o : null;
+  }catch(e){ return null; }
+}
+function normKod(k){ return String(k || "").toUpperCase().replace(/\s+/g, ""); }
+
+function ukazReseni(R){
+  zamceno = true;
+  each(document.querySelectorAll("#qs input"), function(el){
+    if(el.type === "radio") el.disabled = true; else { el.readOnly = true; el.setAttribute("aria-readonly", "true"); }
+  });
+  $("vymazat").hidden = true; $("potvrd").hidden = true;
+  ORDER.forEach(function(m){
+    var row = document.querySelector('[data-m="' + m + '"]');
+    if(row && row.tagName === "INPUT") row = row.parentNode;
+    var holder = row ? row : null;
+    if(!holder || !R.r[m]) return;
+    var mine = getVal(m);
+    var box = document.createElement("div");
+    box.className = "sol";
+    box.innerHTML = "<p>Tvoje odpověď: <b>" + (mine ? esc(mine) : "nevyplněno") + "</b></p>"
+      + "<p>Správně: <span class=\"sp\">" + esc(R.r[m].s) + "</span></p>"
+      + "<p>" + esc(R.r[m].w) + "</p>";
+    holder.parentNode.insertBefore(box, holder.nextSibling);
+  });
+  $("unlock").innerHTML = "<h2>Řešení je odemčené</h2><p>Tvoje odpovědi jsou zamčené. U každé vidíš, jak je to správně a proč.</p>";
+}
+function zkusKod(kod, tiche){
+  kod = normKod(kod);
+  var R = kod ? desifruj(kod) : null;
+  if(!R){
+    if(!tiche){ var m = $("kod-msg"); m.hidden = false; m.className = "err"; m.textContent = "Tenhle kód nesedí. Zkontroluj ho s tátou."; }
+    return false;
+  }
+  try{ localStorage.setItem(ODEMCENO, kod); }catch(e){}
+  ukazReseni(R);
+  return true;
+}
+$("odemknout").addEventListener("click", function(){ zkusKod($("kod").value, false); });
+$("kod").addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); zkusKod($("kod").value, false); } });
+(function(){
+  var k = null;
+  try{ k = localStorage.getItem(ODEMCENO); }catch(e){}
+  if(k) zkusKod(k, true);
+})();
+})();
+
+
+</script>
+</body>
+</html>
