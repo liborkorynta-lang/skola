@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test: Století, prameny a pravěk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --ground:#F8F6F1;--surface:#FFFFFF;--sunk:#EFECE4;--line:#DDD8CC;
+  --text:#1E1B16;--muted:#6B6558;--ink:#8A4B16;--on-ink:#FFFFFF;--ink-soft:#F6E9DC;
+  --ok:#17703F;--ok-soft:#E1F2E7;--err:#B32B36;--err-soft:#FBE6E7;
+  --shadow:0 1px 2px rgba(30,27,22,.06),0 6px 18px rgba(30,27,22,.05);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#15130F;--surface:#1F1C17;--sunk:#29251F;--line:#3A352D;
+    --text:#ECE7DD;--muted:#A69E8F;--ink:#F0B37E;--on-ink:#15130F;--ink-soft:#3A2A1C;
+    --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#15130F;--surface:#1F1C17;--sunk:#29251F;--line:#3A352D;
+  --text:#ECE7DD;--muted:#A69E8F;--ink:#F0B37E;--on-ink:#15130F;--ink-soft:#3A2A1C;
+  --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:30px 16px 80px;display:flex;flex-direction:column;gap:22px}
+.eyebrow{margin:0;font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+h1{margin:6px 0 0;font-family:var(--serif);font-size:clamp(28px,7vw,40px);font-weight:600;line-height:1.1}
+.lede{margin:10px 0 0;color:var(--muted)}
+.modes{display:flex;gap:4px;margin-top:18px;padding:4px;background:var(--sunk);border-radius:11px;border:1px solid var(--line)}
+.modes button{flex:1;appearance:none;border:0;background:transparent;color:var(--muted);font:600 14px var(--sans);padding:9px 4px;border-radius:8px;cursor:pointer}
+.modes button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.modes button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h2.part{margin:8px 0 0;font-family:var(--serif);font-size:22px;font-weight:600}
+.hint{margin:4px 0 0;font-size:15px;color:var(--muted)}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:q}
+ol.qs>li{counter-increment:q;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 44px;position:relative;box-shadow:var(--shadow)}
+ol.qs>li::before{content:counter(q);position:absolute;left:16px;top:15px;font-size:13px;font-weight:700;color:var(--muted)}
+ol.qs>li.ok{border-color:var(--ok)}
+ol.qs>li.bad{border-color:var(--err)}
+.qt{margin:0 0 8px;font-weight:600}
+.qt.inline{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0}
+.yr{font-family:var(--serif);font-weight:400;color:var(--ink);white-space:nowrap}
+.ans{display:inline-flex;align-items:baseline;gap:2px;font-family:var(--serif)}
+input.num{width:2.6em;font:600 19px var(--serif);text-align:center;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);padding:0 0 1px}
+input.num:focus{outline:0;background:var(--ink-soft)}
+select{font:16px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+select:focus{outline:2px solid var(--ink);outline-offset:1px}
+.orow{display:flex;align-items:center;gap:10px;padding:5px 0}
+.orow select{flex:none;width:4.2em}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.opt input{margin:4px 0 0;accent-color:var(--ink)}
+.opt:has(input:checked){background:var(--ink-soft);border-color:var(--ink)}
+.good{color:var(--ok)!important;border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.wrong{color:var(--err)!important;border-color:var(--err)!important;background:var(--err-soft)!important}
+.why{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--err-soft);color:var(--text);font-size:15px}
+.why b{color:var(--err)}
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:12px 18px;font:700 16px var(--sans);cursor:pointer;background:var(--ink);color:var(--on-ink)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.result h2{margin:0 0 4px;font-size:18px}
+.result p{margin:0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 6px;font-family:var(--serif);font-size:19px}
+.card p,.card ul{margin:6px 0}
+.card ul{padding-left:20px}
+.ex{font-family:var(--serif);color:var(--ink)}
+section{display:flex;flex-direction:column;gap:14px}
+
+input.txt{width:100%;font:17px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input.txt:focus,textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
+textarea{width:100%;min-height:10em;font:14px ui-monospace,Menlo,monospace;color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:10px}
+.pts{float:right;font-size:13px;font-weight:600;color:var(--muted);margin-left:8px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+ol.qs>li::before{content:attr(data-n)}
+.key{font-family:var(--serif);color:var(--ok);font-weight:600}
+@media print{.bar,#copybox,.modes{display:none!important} body{background:#fff} ol.qs>li{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="mobil" style="background:var(--ink);color:var(--on-ink);border-radius:12px;padding:14px 16px;font-weight:600">
+  <a href="https://liborkorynta-lang.github.io/skola/viky/dejepis/D_uvod-pravek_01_TEST.html" style="color:var(--on-ink);text-decoration:underline">Pro otevření na iPhonu klikni sem</a>
+</div>
+<header>
+  <p class="eyebrow">Dějepis · test</p>
+  <h1>Století, prameny a pravěk</h1>
+  <p class="lede">Odpovídej sama, bez sešitu. Až budeš mít hotovo, dole zkopíruj odpovědi a pošli je tátovi. Celkem 40 bodů.</p>
+</header>
+
+<section>
+  <h2 class="part">1. Ve kterém je to století?</h2>
+  <ol class="qs"><li class="q" data-n="1a"><p class="qt"><span class="pts">1 b.</span>rok 1620</p>
+<input class="txt" id="1a" data-k="1a" data-l="rok 1620" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="1b"><p class="qt"><span class="pts">1 b.</span>rok 1918</p>
+<input class="txt" id="1b" data-k="1b" data-l="rok 1918" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="1c"><p class="qt"><span class="pts">1 b.</span>rok 1306</p>
+<input class="txt" id="1c" data-k="1c" data-l="rok 1306" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="1d"><p class="qt"><span class="pts">1 b.</span>rok 999</p>
+<input class="txt" id="1d" data-k="1d" data-l="rok 999" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="1e"><p class="qt"><span class="pts">1 b.</span>rok 612</p>
+<input class="txt" id="1e" data-k="1e" data-l="rok 612" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="1f"><p class="qt"><span class="pts">1 b.</span>rok 150 př. n. l.</p>
+<input class="txt" id="1f" data-k="1f" data-l="rok 150 př. n. l." type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li></ol>
+
+  <h2 class="part">2. Doplň údaj ze sešitu</h2>
+  <p class="hint">Napiš letopočet, u posledního století.</p>
+  <ol class="qs"><li class="q" data-n="2a"><p class="qt"><span class="pts">1 b.</span>Karel IV.</p>
+<input class="txt" id="2a" data-k="2a" data-l="Karel IV." type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="2b"><p class="qt"><span class="pts">1 b.</span>Vratislav II. — první český král</p>
+<input class="txt" id="2b" data-k="2b" data-l="Vratislav II. — první český král" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="2c"><p class="qt"><span class="pts">1 b.</span>Cyril a Metoděj</p>
+<input class="txt" id="2c" data-k="2c" data-l="Cyril a Metoděj" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="2d"><p class="qt"><span class="pts">1 b.</span>Přemysl Otakar I.</p>
+<input class="txt" id="2d" data-k="2d" data-l="Přemysl Otakar I." type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="2e"><p class="qt"><span class="pts">1 b.</span>2. světová válka</p>
+<input class="txt" id="2e" data-k="2e" data-l="2. světová válka" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="2f"><p class="qt"><span class="pts">1 b.</span>Anežka Česká (napiš století)</p>
+<input class="txt" id="2f" data-k="2f" data-l="Anežka Česká (napiš století)" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li></ol>
+
+  <h2 class="part">3. Kdo nebo co to je?</h2>
+  <ol class="qs"><li class="q" data-n="3a"><p class="qt"><span class="pts">1 b.</span>6. 7. 1415</p>
+<input class="txt" id="3a" data-k="3a" data-l="6. 7. 1415" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="3b"><p class="qt"><span class="pts">1 b.</span>44 př. n. l. (smrt)</p>
+<input class="txt" id="3b" data-k="3b" data-l="44 př. n. l. (smrt)" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="3c"><p class="qt"><span class="pts">1 b.</span>1740–1780</p>
+<input class="txt" id="3c" data-k="3c" data-l="1740–1780" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="3d"><p class="qt"><span class="pts">1 b.</span>8. století</p>
+<input class="txt" id="3d" data-k="3d" data-l="8. století" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li></ol>
+
+  <h2 class="part">4. Časová osa</h2>
+  <ol class="qs"><li class="q" data-n="4"><p class="qt"><span class="pts">2 b.</span>Seřaď od nejstaršího (1.) po nejmladší (5.)</p><div class="orow"><select id="4a" data-k="4a" data-l="Karel IV." aria-label="Karel IV."><option value="">–</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><span>Karel IV.</span></div><div class="orow"><select id="4b" data-k="4b" data-l="2. světová válka" aria-label="2. světová válka"><option value="">–</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><span>2. světová válka</span></div><div class="orow"><select id="4c" data-k="4c" data-l="Cyril a Metoděj" aria-label="Cyril a Metoděj"><option value="">–</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><span>Cyril a Metoděj</span></div><div class="orow"><select id="4d" data-k="4d" data-l="Přemysl Otakar I." aria-label="Přemysl Otakar I."><option value="">–</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><span>Přemysl Otakar I.</span></div><div class="orow"><select id="4e" data-k="4e" data-l="Vratislav II." aria-label="Vratislav II."><option value="">–</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><span>Vratislav II.</span></div></li></ol>
+
+  <h2 class="part">5. Jaký je to pramen?</h2>
+  <ol class="qs"><li class="q" data-n="5a"><p class="qt inline"><span class="pts">1 b.</span><b>kosti</b><select id="5a" data-k="5a" data-l="kosti" aria-label="kosti"><option value="">vyber…</option><option value="hmotný">hmotný</option><option value="písemný">písemný</option><option value="umělecký">umělecký</option><option value="moderní technologie">moderní technologie</option></select></p></li>
+<li class="q" data-n="5b"><p class="qt inline"><span class="pts">1 b.</span><b>stavba</b><select id="5b" data-k="5b" data-l="stavba" aria-label="stavba"><option value="">vyber…</option><option value="hmotný">hmotný</option><option value="písemný">písemný</option><option value="umělecký">umělecký</option><option value="moderní technologie">moderní technologie</option></select></p></li>
+<li class="q" data-n="5c"><p class="qt inline"><span class="pts">1 b.</span><b>dopis</b><select id="5c" data-k="5c" data-l="dopis" aria-label="dopis"><option value="">vyber…</option><option value="hmotný">hmotný</option><option value="písemný">písemný</option><option value="umělecký">umělecký</option><option value="moderní technologie">moderní technologie</option></select></p></li>
+<li class="q" data-n="5d"><p class="qt inline"><span class="pts">1 b.</span><b>malba</b><select id="5d" data-k="5d" data-l="malba" aria-label="malba"><option value="">vyber…</option><option value="hmotný">hmotný</option><option value="písemný">písemný</option><option value="umělecký">umělecký</option><option value="moderní technologie">moderní technologie</option></select></p></li>
+<li class="q" data-n="5e"><p class="qt inline"><span class="pts">1 b.</span><b>televize</b><select id="5e" data-k="5e" data-l="televize" aria-label="televize"><option value="">vyber…</option><option value="hmotný">hmotný</option><option value="písemný">písemný</option><option value="umělecký">umělecký</option><option value="moderní technologie">moderní technologie</option></select></p></li>
+<li class="q" data-n="5f"><p class="qt inline"><span class="pts">1 b.</span><b>mapa</b><select id="5f" data-k="5f" data-l="mapa" aria-label="mapa"><option value="">vyber…</option><option value="hmotný">hmotný</option><option value="písemný">písemný</option><option value="umělecký">umělecký</option><option value="moderní technologie">moderní technologie</option></select></p></li></ol>
+
+  <h2 class="part">6. Prameny poznání dějin</h2>
+  <ol class="qs"><li class="q" data-n="6a"><p class="qt"><span class="pts">2 b.</span>Vyjmenuj všechny 4 druhy pramenů poznání dějin.</p>
+<input class="txt" id="6a" data-k="6a" data-l="Vyjmenuj všechny 4 druhy pramenů poznání dějin." type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="6b"><p class="qt"><span class="pts">1 b.</span>Kde najdeš hmotné prameny (vykopávky)?</p>
+<input class="txt" id="6b" data-k="6b" data-l="Kde najdeš hmotné prameny (vykopávky)?" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li></ol>
+
+  <h2 class="part">7. Pravěk</h2>
+  <ol class="qs"><li class="q" data-n="7a"><p class="qt"><span class="pts">1 b.</span>Jak dlouho trval pravěk?</p>
+<input class="txt" id="7a" data-k="7a" data-l="Jak dlouho trval pravěk?" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="7b"><p class="qt"><span class="pts">1 b.</span>Co bylo rozhodující pro vývoj člověka?</p>
+<input class="txt" id="7b" data-k="7b" data-l="Co bylo rozhodující pro vývoj člověka?" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="7c"><p class="qt"><span class="pts">2 b.</span>Napiš obě vývojová období pravěku.</p>
+<input class="txt" id="7c" data-k="7c" data-l="Napiš obě vývojová období pravěku." type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="7d"><p class="qt"><span class="pts">2 b.</span>Napiš 3 doby pravěku podle suroviny ve správném pořadí.</p>
+<input class="txt" id="7d" data-k="7d" data-l="Napiš 3 doby pravěku podle suroviny ve správném pořadí." type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="7e"><p class="qt"><span class="pts">2 b.</span>Doplň, jak lidé žili: tlupa → ____ → kmen → ____ → první státy</p>
+<input class="txt" id="7e" data-k="7e" data-l="Doplň, jak lidé žili: tlupa → ____ → kmen → ____ → první státy" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="7f"><p class="qt"><span class="pts">1 b.</span>Čím začal starověk?</p>
+<input class="txt" id="7f" data-k="7f" data-l="Čím začal starověk?" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="7g"><p class="qt"><span class="pts">2 b.</span>Co dělali při přirozené dělbě práce muži a co ženy?</p>
+<input class="txt" id="7g" data-k="7g" data-l="Co dělali při přirozené dělbě práce muži a co ženy?" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-n="7h"><p class="qt"><span class="pts">2 b.</span>Co je společenská dělba práce? Napiš i příklad.</p>
+<input class="txt" id="7h" data-k="7h" data-l="Co je společenská dělba práce? Napiš i příklad." type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="odpověď"></li></ol>
+
+  <div class="bar"><button class="btn" id="copy">Zkopírovat moje odpovědi</button><button class="btn ghost" id="rst">Smazat vše</button></div>
+  <div id="copybox" class="result" hidden>
+    <h2 id="copymsg">Zkopírováno</h2>
+    <p>Kdyby vložení nefungovalo, označ text v poli a zkopíruj ho ručně.</p>
+    <textarea id="out" readonly></textarea>
+  </div>
+</section>
+</div>
+<script>
+(function(){
+"use strict";
+try{ document.getElementById("mobil").hidden = true; }catch(e){}
+var $ = function(id){ return document.getElementById(id); };
+var els = Array.prototype.slice.call(document.querySelectorAll("[data-k]"));
+var SKEY = "viky-d-uvod-pravek-01-test";
+function save(){
+  var st = {};
+  els.forEach(function(el){ st[el.id] = el.value; });
+  try{ localStorage.setItem(SKEY, JSON.stringify(st)); }catch(e){}
+}
+(function(){
+  var st = null;
+  try{ var r = localStorage.getItem(SKEY); st = r ? JSON.parse(r) : null; }catch(e){ st = null; }
+  if(!st) return;
+  els.forEach(function(el){ if(st[el.id] != null) el.value = st[el.id]; });
+})();
+els.forEach(function(el){ el.addEventListener("input", save); el.addEventListener("change", save); });
+
+function listing(){
+  var lines = ["Dějepis – test: století, prameny, pravěk", ""];
+  els.forEach(function(el){
+    var v = el.value ? el.value.trim() : "";
+    lines.push(el.id + ") " + el.getAttribute("data-l") + ": " + (v || "[nevyplněno]"));
+  });
+  return lines.join("\n");
+}
+$("copy").addEventListener("click", function(){
+  var t = listing();
+  var box = $("copybox"), ta = $("out");
+  ta.value = t;
+  box.hidden = false;
+  var done = function(ok){ $("copymsg").textContent = ok ? "Zkopírováno — teď to vlož do zprávy tátovi" : "Kopírování nevyšlo — označ text níž"; };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){ done(true); }, function(){ ta.focus(); ta.select(); done(false); });
+  } else {
+    ta.focus(); ta.select();
+    var ok = false; try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+    done(ok);
+  }
+  box.scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+$("rst").addEventListener("click", function(){
+  if(!window.confirm("Opravdu smazat všechny odpovědi?")) return;
+  els.forEach(function(el){ el.value = ""; });
+  $("copybox").hidden = true;
+  save();
+});
+})();
+</script>
+</body>
+</html>

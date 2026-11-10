@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test: Jak se vyvíjel člověk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --ground:#F8F6F1;--surface:#FFFFFF;--sunk:#EFECE4;--line:#DDD8CC;
+  --text:#1E1B16;--muted:#6B6558;--ink:#8A4B16;--on-ink:#FFFFFF;--ink-soft:#F6E9DC;
+  --ok:#17703F;--ok-soft:#E1F2E7;--err:#B32B36;--err-soft:#FBE6E7;
+  --shadow:0 1px 2px rgba(30,27,22,.06),0 6px 18px rgba(30,27,22,.05);
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#15130F;--surface:#1F1C17;--sunk:#29251F;--line:#3A352D;
+    --text:#ECE7DD;--muted:#A69E8F;--ink:#F0B37E;--on-ink:#15130F;--ink-soft:#3A2A1C;
+    --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#15130F;--surface:#1F1C17;--sunk:#29251F;--line:#3A352D;
+  --text:#ECE7DD;--muted:#A69E8F;--ink:#F0B37E;--on-ink:#15130F;--ink-soft:#3A2A1C;
+  --ok:#7DD3A0;--ok-soft:#1D3327;--err:#F09098;--err-soft:#3A2126;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:30px 16px 80px;display:flex;flex-direction:column;gap:22px}
+.eyebrow{margin:0;font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+h1{margin:6px 0 0;font-family:var(--serif);font-size:clamp(28px,7vw,40px);font-weight:600;line-height:1.1}
+.lede{margin:10px 0 0;color:var(--muted)}
+.modes{display:flex;gap:4px;margin-top:18px;padding:4px;background:var(--sunk);border-radius:11px;border:1px solid var(--line)}
+.modes a{text-align:center;text-decoration:none;flex:1;appearance:none;border:0;background:transparent;color:var(--muted);font:600 14px var(--sans);padding:9px 4px;border-radius:8px;cursor:pointer}
+.modes a[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.modes a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h2.part{margin:8px 0 0;font-family:var(--serif);font-size:22px;font-weight:600}
+.hint{margin:4px 0 0;font-size:15px;color:var(--muted)}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:q}
+ol.qs>li{counter-increment:q;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 44px;position:relative;box-shadow:var(--shadow)}
+ol.qs>li::before{content:counter(q);position:absolute;left:16px;top:15px;font-size:13px;font-weight:700;color:var(--muted)}
+ol.qs>li.ok{border-color:var(--ok)}
+ol.qs>li.bad{border-color:var(--err)}
+.qt{margin:0 0 8px;font-weight:600}
+.qt.inline{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0}
+.yr{font-family:var(--serif);font-weight:400;color:var(--ink);white-space:nowrap}
+.ans{display:inline-flex;align-items:baseline;gap:2px;font-family:var(--serif)}
+input.num{width:2.6em;font:600 19px var(--serif);text-align:center;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);padding:0 0 1px}
+input.num:focus{outline:0;background:var(--ink-soft)}
+select{font:16px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+select:focus{outline:2px solid var(--ink);outline-offset:1px}
+.orow{display:flex;align-items:center;gap:10px;padding:5px 0}
+.orow select{flex:none;width:4.2em}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.opt input{margin:4px 0 0;accent-color:var(--ink)}
+.opt:has(input:checked){background:var(--ink-soft);border-color:var(--ink)}
+.good{color:var(--ok)!important;border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.wrong{color:var(--err)!important;border-color:var(--err)!important;background:var(--err-soft)!important}
+.why{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--err-soft);color:var(--text);font-size:15px}
+.why b{color:var(--err)}
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:12px 18px;font:700 16px var(--sans);cursor:pointer;background:var(--ink);color:var(--on-ink)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.result h2{margin:0 0 4px;font-size:18px}
+.result p{margin:0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 6px;font-family:var(--serif);font-size:19px}
+.card p,.card ul{margin:6px 0}
+.card ul{padding-left:20px}
+.ex{font-family:var(--serif);color:var(--ink)}
+section{display:flex;flex-direction:column;gap:14px}
+
+.modes a{text-decoration:none;-webkit-tap-highlight-color:transparent}
+input.txt{width:100%;font:17px var(--sans);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input.txt:focus{outline:2px solid var(--ink);outline-offset:1px}
+.grow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:5px 0}
+.grow .gl{flex:1 1 12em}
+.pts{float:right;font-size:13px;font-weight:600;color:var(--muted);margin-left:8px}
+ol.qs>li::before{content:attr(data-n)}
+.unlock,.potvrd{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.unlock h2{margin:0;font-family:var(--serif);font-size:19px;font-weight:600}
+.unlock p,.potvrd p{margin:0;font-size:15px;color:var(--muted)}
+.unlock .row,.potvrd .row{display:flex;gap:8px;flex-wrap:wrap}
+.unlock input{flex:1;min-width:140px;font:600 18px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--sunk);color:var(--text)}
+.unlock .err{color:var(--err);font-weight:600}
+.potvrd{background:var(--err-soft);border-color:var(--err)}
+.potvrd p{color:var(--text)}
+.sol{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--sunk);font-size:15px;display:flex;flex-direction:column;gap:4px}
+.sol p{margin:0}
+.sol .sp{color:var(--ok);font-weight:700}
+.sol .zl{color:var(--err);font-weight:700}
+ol.qs>li.ok .sol{background:var(--ok-soft)}
+ol.qs>li.bad .sol{background:var(--err-soft)}
+textarea{width:100%;min-height:10em;font:14px ui-monospace,Menlo,monospace;color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:10px}
+footer{font-size:13px;color:var(--muted);text-align:center}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.key{font-family:var(--serif);color:var(--ok);font-weight:600}
+@media print{.bar,.unlock,.modes{display:none!important} body{background:#fff} ol.qs>li{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="mobil" style="background:var(--ink);color:var(--on-ink);border-radius:12px;padding:14px 16px;font-weight:600">
+  <a href="https://liborkorynta-lang.github.io/skola/viky/dejepis/D_vyvoj-cloveka_02_TEST.html" style="color:var(--on-ink);text-decoration:underline">Pro otevření na iPhonu klikni sem</a>
+</div>
+<header>
+  <p class="eyebrow">Dějepis · test</p>
+  <h1>Jak se vyvíjel člověk</h1>
+  <p class="lede">Odpovídej sama, bez sešitu. Až budeš mít hotovo, dole zkopíruj odpovědi a pošli je tátovi. Celkem 31 bodů.</p>
+</header>
+<section>
+<h2 class="part">1. Teorie vzniku člověka</h2>
+<ol class="qs">
+<li class="q" data-q="1" data-n="1" data-s="Napiš obě teorie vzniku člověka (kdo nebo co za nimi stojí)."><p class="qt"><span class="pts">2 b.</span>Napiš obě teorie vzniku člověka (kdo nebo co za nimi stojí).</p><input class="txt" id="q1" data-k="q1" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="odpověď"></li>
+</ol>
+<h2 class="part">2. Kdo je kdo? Přiřaď český název</h2>
+<ol class="qs">
+<li class="q" data-q="2a" data-n="2a" data-s="homo erectus"><p class="qt inline"><span class="pts">1 b.</span><b>homo erectus</b><select id="q2a" data-k="q2a" aria-label="homo erectus"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="2b" data-n="2b" data-s="homo sapiens sapiens"><p class="qt inline"><span class="pts">1 b.</span><b>homo sapiens sapiens</b><select id="q2b" data-k="q2b" aria-label="homo sapiens sapiens"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="2c" data-n="2c" data-s="homo habilis"><p class="qt inline"><span class="pts">1 b.</span><b>homo habilis</b><select id="q2c" data-k="q2c" aria-label="homo habilis"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="2d" data-n="2d" data-s="homo sapiens"><p class="qt inline"><span class="pts">1 b.</span><b>homo sapiens</b><select id="q2d" data-k="q2d" aria-label="homo sapiens"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+</ol>
+<h2 class="part">3. Kdy žil? Přiřaď stupeň k době</h2>
+<ol class="qs">
+<li class="q" data-q="3a" data-n="3a" data-s="250 000 – 40 000 př. n. l."><p class="qt inline"><span class="pts">1 b.</span><b>250 000 – 40 000 př. n. l.</b><select id="q3a" data-k="q3a" aria-label="250 000 – 40 000 př. n. l."><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="3b" data-n="3b" data-s="3 mil. – 1,5 mil. let př. n. l."><p class="qt inline"><span class="pts">1 b.</span><b>3 mil. – 1,5 mil. let př. n. l.</b><select id="q3b" data-k="q3b" aria-label="3 mil. – 1,5 mil. let př. n. l."><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="3c" data-n="3c" data-s="40 000 – 10 000 př. n. l."><p class="qt inline"><span class="pts">1 b.</span><b>40 000 – 10 000 př. n. l.</b><select id="q3c" data-k="q3c" aria-label="40 000 – 10 000 př. n. l."><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="3d" data-n="3d" data-s="1,5 mil. – 250 000 př. n. l."><p class="qt inline"><span class="pts">1 b.</span><b>1,5 mil. – 250 000 př. n. l.</b><select id="q3d" data-k="q3d" aria-label="1,5 mil. – 250 000 př. n. l."><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+</ol>
+<h2 class="part">4. Komu to patří? Přiřaď stupeň vývoje</h2>
+<ol class="qs">
+<li class="q" data-q="4a" data-n="4a" data-s="oheň využíval, ale neuměl ho rozdělat"><p class="qt inline"><span class="pts">1 b.</span><b>oheň využíval, ale neuměl ho rozdělat</b><select id="q4a" data-k="q4a" aria-label="oheň využíval, ale neuměl ho rozdělat"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="4b" data-n="4b" data-s="jeskyně blízko řek a jezer"><p class="qt inline"><span class="pts">1 b.</span><b>jeskyně blízko řek a jezer</b><select id="q4b" data-k="q4b" aria-label="jeskyně blízko řek a jezer"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="4c" data-n="4c" data-s="první dřevěné nástroje — oštěpy a kyje"><p class="qt inline"><span class="pts">1 b.</span><b>první dřevěné nástroje — oštěpy a kyje</b><select id="q4c" data-k="q4c" aria-label="první dřevěné nástroje — oštěpy a kyje"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="4d" data-n="4d" data-s="uměl už rozdělávat oheň"><p class="qt inline"><span class="pts">1 b.</span><b>uměl už rozdělávat oheň</b><select id="q4d" data-k="q4d" aria-label="uměl už rozdělávat oheň"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="4e" data-n="4e" data-s="místo tlupy žil v rodu"><p class="qt inline"><span class="pts">1 b.</span><b>místo tlupy žil v rodu</b><select id="q4e" data-k="q4e" aria-label="místo tlupy žil v rodu"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="4f" data-n="4f" data-s="Věstonická venuše"><p class="qt inline"><span class="pts">1 b.</span><b>Věstonická venuše</b><select id="q4f" data-k="q4f" aria-label="Věstonická venuše"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+<li class="q" data-q="4g" data-n="4g" data-s="sušení a uzení masa"><p class="qt inline"><span class="pts">1 b.</span><b>sušení a uzení masa</b><select id="q4g" data-k="q4g" aria-label="sušení a uzení masa"><option value="">vyber…</option><option value="člověk zručný">člověk zručný</option><option value="člověk vzpřímený">člověk vzpřímený</option><option value="člověk rozumný">člověk rozumný</option><option value="člověk dnešního typu">člověk dnešního typu</option></select></p></li>
+</ol>
+<h2 class="part">5. Vyber nebo napiš správnou odpověď</h2>
+<ol class="qs">
+<li class="q" data-q="5a" data-n="5a" data-s="Kde jsou nejstarší nálezy člověka zručného?"><p class="qt"><span class="pts">1 b.</span>Kde jsou nejstarší nálezy člověka zručného?</p><div class="opts"><label class="opt"><input type="radio" name="q5a" value="v Evropě" data-k="q5a"><span>v Evropě</span></label><label class="opt"><input type="radio" name="q5a" value="ve východní Africe" data-k="q5a"><span>ve východní Africe</span></label><label class="opt"><input type="radio" name="q5a" value="v Austrálii" data-k="q5a"><span>v Austrálii</span></label></div></li>
+<li class="q" data-q="5b" data-n="5b" data-s="Co vzniká u člověka rozumného při dorozumívání?"><p class="qt"><span class="pts">1 b.</span>Co vzniká u člověka rozumného při dorozumívání?</p><div class="opts"><label class="opt"><input type="radio" name="q5b" value="článkovaná řeč" data-k="q5b"><span>článkovaná řeč</span></label><label class="opt"><input type="radio" name="q5b" value="písmo" data-k="q5b"><span>písmo</span></label><label class="opt"><input type="radio" name="q5b" value="posunková řeč" data-k="q5b"><span>posunková řeč</span></label></div></li>
+<li class="q" data-q="5c" data-n="5c" data-s="Jaká zbraň byla novinka u člověka dnešního typu?"><p class="qt"><span class="pts">1 b.</span>Jaká zbraň byla novinka u člověka dnešního typu?</p><div class="opts"><label class="opt"><input type="radio" name="q5c" value="pěstní klín" data-k="q5c"><span>pěstní klín</span></label><label class="opt"><input type="radio" name="q5c" value="kyj" data-k="q5c"><span>kyj</span></label><label class="opt"><input type="radio" name="q5c" value="luk a šíp" data-k="q5c"><span>luk a šíp</span></label></div></li>
+<li class="q" data-q="5d" data-n="5d" data-s="Co najdeš v jeskyni Altamira?"><p class="qt"><span class="pts">1 b.</span>Co najdeš v jeskyni Altamira?</p><div class="opts"><label class="opt"><input type="radio" name="q5d" value="malby" data-k="q5d"><span>malby</span></label><label class="opt"><input type="radio" name="q5d" value="první hroby" data-k="q5d"><span>první hroby</span></label><label class="opt"><input type="radio" name="q5d" value="Věstonickou venuši" data-k="q5d"><span>Věstonickou venuši</span></label></div></li>
+<li class="q" data-q="5e" data-n="5e" data-s="Které zvíře zdomácnělo jako první?"><p class="qt"><span class="pts">1 b.</span>Které zvíře zdomácnělo jako první?</p><input class="txt" id="q5e" data-k="q5e" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="odpověď"></li>
+</ol>
+<h2 class="part">6. Odpověz vlastními slovy</h2>
+<ol class="qs">
+<li class="q" data-q="6a" data-n="6a" data-s="Jak se dorozumíval člověk zručný?"><p class="qt"><span class="pts">1 b.</span>Jak se dorozumíval člověk zručný?</p><input class="txt" id="q6a" data-k="q6a" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-q="6b" data-n="6b" data-s="Napiš 2 naleziště člověka dnešního typu u nás."><p class="qt"><span class="pts">2 b.</span>Napiš 2 naleziště člověka dnešního typu u nás.</p><input class="txt" id="q6b" data-k="q6b" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-q="6c" data-n="6c" data-s="Napiš 3 věci, které lidé dávali do hrobů."><p class="qt"><span class="pts">2 b.</span>Napiš 3 věci, které lidé dávali do hrobů.</p><input class="txt" id="q6c" data-k="q6c" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-q="6d" data-n="6d" data-s="Co dělali v rodu člověka dnešního typu muži a co ženy?"><p class="qt"><span class="pts">2 b.</span>Co dělali v rodu člověka dnešního typu muži a co ženy?</p><input class="txt" id="q6d" data-k="q6d" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="odpověď"></li>
+<li class="q" data-q="6e" data-n="6e" data-s="Co je rod a proč nahradil tlupu?"><p class="qt"><span class="pts">2 b.</span>Co je rod a proč nahradil tlupu?</p><input class="txt" id="q6e" data-k="q6e" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="odpověď"></li>
+</ol>
+
+<div class="bar">
+  <button class="btn" id="copy-all" type="button">Zkopírovat moje odpovědi</button>
+  <button class="btn ghost" id="vymazat" type="button">Vymazat a začít znovu</button>
+</div>
+<div class="potvrd" id="potvrd" hidden>
+  <p>Opravdu smazat všechny tvoje odpovědi? Vrátit to nepůjde.</p>
+  <div class="row">
+    <button class="btn" id="potvrd-ano" type="button">Ano, smazat</button>
+    <button class="btn ghost" id="potvrd-ne" type="button">Ne, nechat</button>
+  </div>
+</div>
+<div id="out" hidden></div>
+<div class="unlock" id="unlock">
+  <h2>Řešení</h2>
+  <p>Až tátovi pošleš odpovědi, dostaneš od něj kód. Po zadání kódu se tvoje odpovědi zamknou
+  a u každé uvidíš, jak je to správně a proč. Pak už test nepůjde vymazat ani udělat znovu.</p>
+  <div class="row">
+    <input id="kod" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Kód od táty" placeholder="Kód od táty">
+    <button class="btn" id="odemknout" type="button">Odemknout řešení</button>
+  </div>
+  <p id="kod-msg" hidden></p>
+</div>
+</section>
+<footer>Test nic nikam neodesílá. Odpovědi zkopíruj a pošli tátovi sama.</footer>
+</div>
+<script>
+(function(){
+"use strict";
+try{ document.getElementById("mobil").hidden = true; }catch(e){}
+var $ = function(id){ return document.getElementById(id); };
+var each = function(list, fn){ Array.prototype.forEach.call(list, fn); };
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+var SKEY = "viky-d-vyvoj-cloveka-02-test";
+var ODEMCENO = SKEY + "-odemceno";
+var zamceno = false;
+function hodnota(id){
+  var r = document.querySelectorAll('input[type=radio][name="' + id + '"]');
+  if(r.length){ var v = ""; each(r, function(x){ if(x.checked) v = x.value; }); return v; }
+  var el = $(id); return el ? el.value : "";
+}
+function idOf(li){ return "q" + li.getAttribute("data-q"); }
+function save(){
+  if(zamceno) return;
+  var st = {};
+  each(document.querySelectorAll("li.q"), function(li){ st[idOf(li)] = hodnota(idOf(li)); });
+  try{ localStorage.setItem(SKEY, JSON.stringify(st)); }catch(e){}
+}
+(function restore(){
+  var st = null;
+  try{ var r = localStorage.getItem(SKEY); st = r ? JSON.parse(r) : null; }catch(e){ st = null; }
+  if(!st) return;
+  each(document.querySelectorAll("[data-k]"), function(el){
+    var v = st[el.getAttribute("data-k")];
+    if(v == null) return;
+    if(el.type === "radio") el.checked = (el.value === v); else el.value = v;
+  });
+})();
+document.addEventListener("input", save);
+document.addEventListener("change", save);
+
+function report(){
+  var lines = ["Dějepis — test: vývoj člověka", ""];
+  each(document.querySelectorAll("li.q"), function(li){
+    lines.push(li.getAttribute("data-q") + ") " + li.getAttribute("data-s") + ": " + (hodnota(idOf(li)).trim() || "—"));
+  });
+  return lines.join("\n");
+}
+$("copy-all").addEventListener("click", function(){
+  var txt = report(), btn = this, box = $("out");
+  box.hidden = false;
+  box.innerHTML = "<p class=\"hint\">Kdyby kopírování nefungovalo, označ text níže ručně a zkopíruj ho.</p><textarea readonly></textarea>";
+  box.getElementsByTagName("textarea")[0].value = txt;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(
+        function(){ btn.textContent = "Zkopírováno"; },
+        function(){ btn.textContent = "Zkopíruj ručně níže"; });
+    } else { btn.textContent = "Zkopíruj ručně níže"; }
+  }catch(e){ btn.textContent = "Zkopíruj ručně níže"; }
+});
+$("vymazat").addEventListener("click", function(){ if(!zamceno) $("potvrd").hidden = false; });
+$("potvrd-ne").addEventListener("click", function(){ $("potvrd").hidden = true; });
+$("potvrd-ano").addEventListener("click", function(){
+  if(zamceno) return;
+  each(document.querySelectorAll("[data-k]"), function(el){ if(el.type === "radio") el.checked = false; else el.value = ""; });
+  save();
+  $("out").hidden = true; $("out").innerHTML = "";
+  $("copy-all").textContent = "Zkopírovat moje odpovědi";
+  $("potvrd").hidden = true;
+  window.scrollTo(0, 0);
+});
+
+/* odemceni reseni kodem (sifra jako _nastroje/test_s_kodem.py) */
+var S = "ndeLKqBAq0hJ0AX/7ppTpmcwmzyTinNhyb/PCOdvHhnm4jUJUMYINPCPRG8ylrFs4JiBo0jAHgiQyCooVn+uaTHvwnMmetKT4yIjsxYUd3fzS++/Guc9QUpuVRaW0orHZZMNabkY7eDDnF/vUlA4KmyfUJHQG7Yy6LbjXmc4meKTwVdrhGLQapqBDMVed3V5ykqsC+rBFVruIdQ5kK5mt1pphvQLQP1rEi4TSNVa1vcKD2oTY6a/HROofim5uozRWFN5f3GFfSbzPkEBK3pVQ8joyAI75L2UnsCwS0/Is+1FbrfvFpylBH//4harfQtE4LMHZpRmxfYdFMCj/WlPLyBLqGmPBJyNLn2B4StJVVrTRzVzyCbUHUhTl56dAChpF9faukEi3bBi0EXleerNyNjmAQcldoQnIe0SCLXnvIMVW5Js3L6zTwfqVbSLwjIarvhv0R+m9FW7VOGxwkNy4EPDTVH4LEzrakMbkd0iYhqfczKpPh8ALJFUVkl1aUluqWdUf5+R1hltGFgMD3p7WOQ5uxmci83Mo+UbWqG0G+zVwZwwWBVbWVJFx8unsPanOEfZheekTUSOnmthgUCyQPA9CsCXA5g0jLNkezs9atmp+MhpQebFsiIK5wqRBG8eBQOtPVx5OBIqBKoo91x8wXHo3BFub6CRf7lKX/9Gb8s3LBKK7GPaEdLf+4mDXQZIf1st2gbza8KA9yalAvhYLIr59UGyngWsYLm0Xzv1IjYr/yV5JxsvTs54yGKYXYaguaiAXYxTsk5LVphJcjSQui22aiCw1Y61vSqIWVNQXnRqbk0J/4sSMhR+uDuQvMRsTlwOb+gb+KlvK+nakUqVLCLDpbDovojLWlACLN8VIneTAZI0NZXVYPEGOhU8juEJVlARx6pgHFaQJGoQ8KrgamLFdz+5BSayCS7SkpfBiQxgSAs/6Lx/v1Z7JMsdhuicW3gi8Uf+vv4rvwatA+LejDU3puX7h0woANFu4mRGH+DflOsXUT74ohYplAw4TfrHzLYaJw48B1JfIwPq3a1oua4I7y1nt4Zr0oO396gASwJT+Y6abcHaVC+ij+mTylr41zlRJQJVYKdrarGV0XFI6NjD4xuT6OIkrIAZVWrfxG4agKmZ7F+eEqTvFY+UGtlltOFbL5ro/3luOHf/I5kBObwvmYuLrGAl1C/CD2NIvLIRX8Cp4iDU5cKvBmKadbTEEdRk7okTvGBNz8GTGdFB03VVlP7ZIjnT9px5kcIhFDh35hb27hsWbuVlQ32raQuiBLXC0lHRfnKH817A1Mcn2dm08pnFf41pu5/8JrpWmFvquP+FFD95/imaAnvH5VSPkSWFMxxUbhBKPEH47EXExuAQuCIf5h8qCVfR3D31WGjKcGPtZsQZ3fq2376ZcNkwEiCYl+ymJ+i+VuOWPiiWomQRyV2V2KrziDBkysd7oNKGvQuVpjiu+Vf8fvvKrX1gUHXXGFPpK8YdjDbVjK5yWzU/TIpv33qibGx+YI0mzCLbDkKRJ7KEstt1qCxYdIWmzSF1CPVRX43ines+L6NzHp2Pg9vCEAEVXNFsu/qQs82tuo8B/4HzmuOPjutESztejCN0G/PAEfAnnCh5Oei5l5AYdPzy+gaQ3Cv5M9jqBHDIQQVNVJYB9AECpOFcatoIQiIY51nK2goBiur4NDVgKEnPyLZWhFPxCdQ+s017MW89+xh3rf8wFdhtRvacXzgjXOEAvQqvNWGAuWVi39QFy2ZTs6km4uFv9pisvNXwWUSarwGURqnhix8Zc3kd/RX073dGTTtblJ6klo661P4ycgDToySmJJ22i5YCLNq5/FULF5cQ21AouSUUsh8UKpH7UMCx8Wy9BUpyg8JKHJ2Vh4M4GHqTAkhGx3VQ6L031EgSmpypCi/A4oE7/rGJOxodPhEDWS+TAh2lhRtRd1PQWBIl/zEFxLKQI5rgZ2iy1wGn6440h59RJ5FuILM6CDp7R36FQc2jGXM/13/2HcDeXW1D69dpRgcq+BYG62JrXIBrWTP557mzS4Mmrw4U0R6EC7JvGfmtI/W9zTbmIdwAVMqAQ9KXJ0QULLSKkAR+KYNL2ZcM+HdzisJXQ/VtmXDTNeRLoV3QXttUxZo+yHSaizOKhZUFxF1V8bUIEC7uqi4CUQQZXcCGAYv0AiSROuck6njxiqawAqC/fBFmIkS9v0tG+dN0I/1hKd3FqhZDJJi0Z3e9jxur4hcx74HqTlwomJ9mdUuXdhT54g38lpPhOMp6knjOlEqlAeAbIOsRPQxm+jliZdiS2MVhgTYjjYwXDMrX5dud/4qf234mDQ5Xq/gz/Z1ug5RhmB1Bms1EXhF3V1sStQCNxozmRT2lMH7k95sUq3sYMjP1BUcEfnS0/8IgjlsHyKI+jcAP0Tvv1NZKEQnKqkJvMAP4nyYIWUmd+Bs1RK412MabHwTFQFq3WQz3u9zu/S5591HJL98ievjzuTq7jeQRoVwnpOBu7Vre6Xh+fY45GHDoC2CmbmX3yKpQj/EewYSPsFXbdgYLxAqsvwzpNRcSq3Ul65BGkuzaQFguwRgzsOtt+Klb4gz/q1Tfxu0FBUFcL8Nf36OA8SeBN1knkupmLjCyl2foQm4MusdBBupROchyorulibAlZRm3D62jWk9nrxpo6XlaeoZQZPNhf7i6D1MQajBDAZ+5UokBXGw9XAFmhmey7cuVcxTyPdpDXlaIm6KQhjqfG2qQWxuR5ZsokhNQVChN3NsaS5deWVhc6ALBoIWufyIGSYWBJaKmKhz8Ap0TqvCF/jRDLsOhkreFj6gFgIcZ6vW310HZxdd3hRf3Wo+AgUHpyyh6TkaWDQpYcS6fTkUyVTKK8VCbKqnk+3W52Z4h8KsGU22zIAbuepysuDr6bw/i54g4bpSffEA7eLdytnEf62cHZvTHxDu0smam6Nhnrv3oJRvl6KNJFqx6ZmxbLSrZO1NZbcn+MK04MJT29GewpwrRPXp4U5ETNlOrigR/4L/kMI9aHis/CsVYeRIxYX9Lfs3MmZAnLTGa07mwSg3Hv35Wz3B47pYQyk5r3YyQZSfb7biyftLPQ1oxDTIf8tk7Kq9qXeBgk8ZlmkbpU0WJASVIcZDww2h/vDdUODjayEnewEoTXPsTujQLCuKtRMI3qGaLfjfus/9iUn8yF0n+VUcRwOQam6R+03vYaTvisvGJlwY0LQlMrVfBK3Et0XSn2BcfoES04jvfRZ/Ey4KaUig1dagLpYGLLKAY2Oj07LSYPxsiPOpuMzafP7OPUndjoAjbGZotRbkzSbKAd5Mx939mwZA4sQjywr/kEeb97n//XI5DRJ//jspxlR9ZWLYnql18yFBq2WfzNSFOgxlD7eviq7msYwCZdDoi7blhezDgsy0S/4FWvi23DUq3fSkHveCrR7ua3Tbsa9Epejt/6wicR6bs/MNSJMwdRLU/9q9KHs7081bnHG2EUOpDw14fZxe12Y/KSNETsPwAePhPnW+KPJQgQ7JxEbH/vqRnopQXDxwt1GTo0fIYcDOYh+ICQXBPdvAtY8PzfySN9qHd47AKh282Umu6EFkOAxaFBbXdYcBydp3Fg3FkFtHrgjUJ19dq3PFsLJW8tEmb/M/twzbvYu5mcdQYcQnjB7sBFsIg9lW+WxW+Z0bmqBGdv1eoCV9UQf3B6UFMfAF9U2i+Mv9LpSO3WD+9WbZGaeT5b86T5BrV3piva7ssHyg02W7MOmd9A7n8iksvk3g/Kk3SVLU6HsjJFg9/vDno6yZrFcPy0IHWK9Hjihsh1Q8Wppypi04CCOPTC0dxNAC/0wQmPrrNKF9w5Eh/rhbaYLq7rGzmv2a1rBgwu0HeKUkhMvqH55PsLznm/f/e+GAV5gAoIbwHngF2HirylBQEVIOnZeF4dmW6qsJNewtb7I5gfaYc9IT/r3pNAvKFC49Xz/+rNX1oqkMTSffUD1kAstgc8NXNi97s/Kwa3zUf4bIg/4aIrmv10IIEAhRSZ6iu1nACkA1YJ33TWKlz7Grv4oIY9su0h3MyWPr6DXgVxqwd6wFbH6bPJIWRGQ19w1tf25jK9RdEqjM16xlPjTToXGoClmvId4RLtNglZVnIQ/PK1umE2fBgs/TUyfU4hAF+8h7OXTeoA46Kd0g/TEVuGG1cEXPuGMrMuxbuuBMzNpnPy9F5NJ7pGGrHPx8BIqZV9rwUZ98OxGIJDI8aSt5T9CPcj1M6nFZAIUFe/3Aq5anXtMAMMIi0Jnop+xlYkEfTry2TkXw6K2bXZZ/upvoRKPjN1stdDbdUWpJomguFNMOQ+p0ypoKm2WhDRKIyTNin4KwFBVi4LBSZU43zrpSqgZwY8IPaDJdiZYR614rUBS4vMcNV1xtKzkduaxwAjY4E8312oz1BJIrDmbls9rx+2n+vnaV2e7H7ft/5hPnn2rbMqyD38uBey27eTFhDfoYzMH8De7s6QSltbdiHd2yzZBmvgqbIZOrBm9+2d4M///3fcPt+4tVj+pFVgw7EQOaDG2GXvEfTxN4eWpxDitsxGS6wJVMiv4Y3UqJ0L5p7QDnIMasCbZNPjfr19hgYodRxwc/7ZarVa86hXJn04JOckcALs5z0ZIvfMINT3fQ/08Oexsv1vf56pq4gdiC0BqHOpBIg67PEzzTnP31CY9tuJ6hnJNHBssO659pjo7GEV9qmqWGU8aV18ByOOncXhBOeL+Y=";
+function keystream(kod, n){
+  var h = 0x811C9DC5, s = "viky|" + kod, i;
+  for(i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  var x = h || 0x9E3779B9, out = [];
+  function step(){ x ^= (x << 13); x >>>= 0; x ^= (x >>> 17); x ^= (x << 5); x >>>= 0; }
+  for(i = 0; i < 20000; i++) step();
+  for(i = 0; i < n; i++){ step(); out.push(x & 0xFF); }
+  return out;
+}
+function desifruj(kod){
+  try{
+    var raw = atob(S), ks = keystream(kod, raw.length), s = "", i;
+    for(i = 0; i < raw.length; i++) s += String.fromCharCode(raw.charCodeAt(i) ^ ks[i]);
+    var o = JSON.parse(decodeURIComponent(escape(s)));
+    return (o && o.m === "viky-ok") ? o : null;
+  }catch(e){ return null; }
+}
+function normKod(k){ return String(k || "").toUpperCase().replace(/\s+/g, ""); }
+function norm(v){ return String(v || "").replace(/\s/g, "").toLowerCase(); }
+function ukazReseni(R){
+  save();
+  zamceno = true;
+  each(document.querySelectorAll("[data-k]"), function(el){ el.disabled = true; });
+  $("vymazat").hidden = true; $("potvrd").hidden = true;
+  each(document.querySelectorAll("li.q"), function(li){
+    var q = R.q[li.getAttribute("data-q")];
+    if(!q) return;
+    var f = q.f[0], jeji = hodnota(f[0]), h = "";
+    if(q.o){
+      h += "<p>Tvoje odpověď: " + (jeji ? "<b>" + esc(jeji) + "</b>" : "nevyplněno") + "</p>";
+      h += "<p>Správně: <span class=\"sp\">" + esc(f[1]) + "</span></p>";
+    } else {
+      var dobre = norm(jeji) === norm(f[1]);
+      h += "<p>" + (dobre ? "<span class=\"sp\">" + esc(f[1]) + "</span>"
+        : (jeji ? "Napsala jsi <span class=\"zl\">" + esc(jeji) + "</span>, správně je " : "Nevyplněno, správně je ")
+          + "<span class=\"sp\">" + esc(f[1]) + "</span>") + "</p>";
+      li.classList.add(dobre ? "ok" : "bad");
+    }
+    h += "<p><b>Proč:</b> " + esc(q.w) + "</p>";
+    var box = document.createElement("div"); box.className = "sol"; box.innerHTML = h;
+    li.appendChild(box);
+  });
+  $("unlock").innerHTML = "<h2>Řešení je odemčené</h2><p>Tvoje odpovědi jsou zamčené. U každé otázky vidíš, jak je to správně a proč. U otázek, kde jsi psala vlastními slovy, si odpověď porovnej sama.</p>";
+}
+function zkusKod(kod, tiche){
+  kod = normKod(kod);
+  var R = kod ? desifruj(kod) : null;
+  if(!R){
+    if(!tiche){ var m = $("kod-msg"); m.hidden = false; m.className = "err"; m.textContent = "Tenhle kód nesedí. Zkontroluj ho s tátou."; }
+    return false;
+  }
+  try{ localStorage.setItem(ODEMCENO, kod); }catch(e){}
+  ukazReseni(R);
+  return true;
+}
+$("odemknout").addEventListener("click", function(){ zkusKod($("kod").value, false); });
+$("kod").addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); zkusKod($("kod").value, false); } });
+(function(){
+  var k = null;
+  try{ k = localStorage.getItem(ODEMCENO); }catch(e){}
+  if(k) zkusKod(k, true);
+})();
+})();
+</script>
+</body>
+</html>
