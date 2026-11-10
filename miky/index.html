@@ -212,8 +212,9 @@ Array.prototype.forEach.call(document.querySelectorAll(".topic"), function(li){
   if(!zbyva.length){ st.textContent = "Natrénováno ✓"; st.classList.add("done"); natrenovano++; }
   else if(cti(skey)){ st.textContent = "Rozehráno"; }
   else { st.textContent = "Nové"; }
-  var t = li.querySelector("[data-test]");
-  if(t && zbyva.length){
+  var t = li.querySelector("[data-test]"), rucne = li.hasAttribute("data-odemceno");
+  if(t && zbyva.length && rucne){ st.textContent = "Test odemkl táta"; }
+  if(t && zbyva.length && !rucne){
     t.classList.add("locked"); t.setAttribute("aria-disabled", "true"); t.textContent = "🔒 Test";
     t.addEventListener("click", function(e){ e.preventDefault(); li.querySelector(".lockmsg").hidden = false; });
   }
