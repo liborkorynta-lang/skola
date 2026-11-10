@@ -271,6 +271,8 @@ each(document.querySelectorAll(".part-sec"), function(sec){
     if(!D){ box.innerHTML = "<h2>Soubor se nenačetl celý</h2><p>Zavři stránku a otevři ji znovu. Kdyby to nepomohlo, řekni to tátovi.</p>"; return; }
     var all = true;
     each(sec.querySelectorAll("li.q"), function(li){ if(!checkLi(li)) all = false; });
+    /* znacka pro rozcestnik na webu: tahle cast je jednou cela spravne (standardy §6) */
+    if(all){ try{ var h = JSON.parse(localStorage.getItem(SKEY + "-hotovo") || "{}"); h[sec.id] = 1; localStorage.setItem(SKEY + "-hotovo", JSON.stringify(h)); }catch(e){} }
     box.innerHTML = all
       ? "<h2>Všechno sedí</h2><p>Tuhle část umíš. Zkus další záložku.</p>"
       : "<h2>Něco ještě nesedí</h2><p>U červených otázek je vysvětlení. Přečti si ho a zkus to znovu.</p>";
